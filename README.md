@@ -27,11 +27,11 @@ This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRe
 
 * **1x Arduino Pro Micro (USB-C):** [AliExpress](https://www.aliexpress.com/item/32888212119.html)
 
-* **1x 1x3 90 Degree Male Header** [Digi-Key] (https://www.digikey.com/en/products/detail/sullins-connector-solutions/PREC003SBAN-M71RC/2774931)
+* **1x 1x3 90 Degree Male Header** [Digi-Key](https://www.digikey.com/en/products/detail/sullins-connector-solutions/PREC003SBAN-M71RC/2774931)
 
-* **1x 3.3v Regulator (MCP1700-3302E/TO)** [Digi-Key] (https://www.digikey.com/en/products/detail/microchip-technology/MCP1700-3302E-TO/652680)
+* **1x 3.3v Regulator (MCP1700-3302E/TO)** [Digi-Key](https://www.digikey.com/en/products/detail/microchip-technology/MCP1700-3302E-TO/652680)
 
-* **2x 1uF Capacitor** [Digi-Key] (https://www.digikey.com/en/products/detail/tdk-corporation/FG18X5R1H105KRT06/5802871) 
+* **2x 1uF Capacitor** [Digi-Key](https://www.digikey.com/en/products/detail/tdk-corporation/FG18X5R1H105KRT06/5802871) 
 
 * **2x 1x12 Female Header:** [Digi-Key](https://www.digikey.com/en/products/detail/sullins-connector-solutions/PPTC121LFBN-RC/807231)
 
