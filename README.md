@@ -33,6 +33,8 @@ This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRe
 
 * **2x 1uF Capacitor:** [Digi-Key](https://www.digikey.com/en/products/detail/tdk-corporation/FG18X5R1H105KRT06/5802871) 
 
+* **1x 6mm x 6mm x 5mm Push Button:** [Digi-Key](https://www.digikey.com/en/products/detail/te-connectivity-alcoswitch-switches/1825910-6/1632536)
+
 * **2x 1x12 Female Header:** [Digi-Key](https://www.digikey.com/en/products/detail/sullins-connector-solutions/PPTC121LFBN-RC/807231)
 
 ## 4dapter Special Buttons
