@@ -14,41 +14,41 @@ This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRe
 
 ## 4dapter Special Buttons
 
-NES:
+**NES:**
 * In-Game Menu ("-" Button): Select + D-Pad Down
 * Home Button: Select + Start
 * Screenshot: Select + Up
 
-SNES:
+**SNES:**
 * In-Game Menu ("-" Button): Select + D-Pad Down
 * Home Button: Select + Start
 * Screenshot: Select + Up
 
-Genesis (6-Button):
+**Genesis (6-Button Mode):**
 * In-Game Menu ("-" Button): Mode + Down
 * Home Button: Mode + Start (or 8BitDo M30 Heart Button)
 * Screenshot: Mode + D-Pad Up
-* Genesis 6-Button Toggle (X <--> RB): Hold Mode + B for 1.5 Seconds
+* Genesis 6-Button Toggle (Swap X <--> RB): Hold Mode + B for 1.5 Seconds
 
-Genesis (3-Button):
+**Genesis (3-Button Mode):**
 * In-Game Menu ("-" Button): Start + A + B + C
 * Home Button: Start + A + Down
 * Screenshot: Start + A + Up
 
-N64: 
+**N64:**
 * In-Game Menu ("-" Button): Start + D-Pad Down
 * Home Button: Start + L-Button + R-Button
 * Screenshot: Start + D-Pad Up
-* N64 Button Toggle (B --> X): Hold Start + D-Pad Down for 1.5 Seconds
+* N64 Button Toggle (Swap B <--> X): Hold Start + D-Pad Down for 1.5 Seconds
 
-NES / SNES / Genesis 6-Button:
-Directional Pad <--> Left Analog Joystick Toggle
+**NES / SNES / Genesis 6-Button:**
+Swap Directional Pad <--> Left Analog Joystick Toggle
 * Hold Select/Mode + Down for 1.5 seconds
 * Reports 8-Way Input (Cardinal + Diagonal)
 
 ## Arduino Code Install Instructions
 
-**PLEASE NOTE: Installing this sketch will remove the self-reset listener functionality from the Arduino board. This means you will need to manually trigger a "reset" on the Arduino to replace the code on the board.**
+**PLEASE NOTE: Installing this sketch will remove the self-reset listener functionality from the Arduino board. This means you will need to manually trigger a "reset" on the Arduino to replace the code on the board. A reset button has been included on the PCB to hanlde this situation.**
 
 **Note: If your board does not have a reset button, you can manually reset the Arduino by connecting the RST and GND pins together briefly.**
 
@@ -61,6 +61,6 @@ Directional Pad <--> Left Analog Joystick Toggle
 
 4. Download the project to the Arduino Pro Micro as normal. Remember after download your Arduino Pro Micro will no longer report as a Serial device and will not appear in the "Port" list in the Arduino software.
 
-Note: If you are replacing existing code on the 4dapter, trigger the download from the Arduino software and then trigger a reset on the Arduino Pro Micro within a few seconds of starting the download. If the download fails initially due to not finding the COM port, repeat the download/reset process and it should work the second time.
+Note: If you are replacing existing code on the 4dapter, trigger the download from the Arduino software and then press the reset on the 4dapter within 1-2 seconds of starting the download. If the download fails initially due to not finding the COM port, repeat the download + reset process and it should work the second time.
 
 5. Your 4dapter will now show up as a Switch Controller. Remember that all controller inputs will report for the same player, so multiple players need multiple 4dapters!
