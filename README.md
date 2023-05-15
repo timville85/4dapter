@@ -1,4 +1,5 @@
-# 4dapter - Open Source Controller to Nintendo Switch Adapter
+# 4dapter
+### Open Source Controller to Nintendo Switch Adapter
 
 This software will allow the 4dapter to appear as a single Switch controller that maps all controller inputs as a single combined controller. The controller inputs have been mapped to align to map to the Nintendo Switch Virtual NES, SNES, and Genesis applications. You will only be able to use one different input at a time (although all controllers can be plugged in at the same time).
 
@@ -28,7 +29,7 @@ This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRe
 * In-Game Menu ("-" Button): Mode + Down
 * Home Button: Mode + Start (or 8BitDo M30 Heart Button)
 * Screenshot: Mode + D-Pad Up
-* Genesis 6-Button Toggle (Swap X <--> RB): Hold Mode + B for 1.5 Seconds
+* Special Mode to Swap Genesis X --> Switch RB (for SEGA Genesis Classics): Hold Mode + B for 1.5 Seconds
 
 **Genesis (3-Button Mode):**
 * In-Game Menu ("-" Button): Start + A + B + C
@@ -39,7 +40,7 @@ This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRe
 * In-Game Menu ("-" Button): Start + D-Pad Down
 * Home Button: Start + L-Button + R-Button
 * Screenshot: Start + D-Pad Up
-* N64 Button Toggle (Swap B <--> X): Hold Start + D-Pad Down for 1.5 Seconds
+* Special Mode to Swap N64 B --> Switch X (for Super Mario 3D All-Stars): Hold Start + D-Pad Down for 1.5 Seconds
 
 **NES / SNES / Genesis 6-Button:**
 Swap Directional Pad <--> Left Analog Joystick Toggle
