@@ -1,4 +1,4 @@
-# 4dapter (Switch Adapter)
+# 4dapter - Open Source Controller to Nintendo Switch Adapter
 
 This software will allow the 4dapter to appear as a single Switch controller that maps all controller inputs as a single combined controller. The controller inputs have been mapped to align to map to the Nintendo Switch Virtual NES, SNES, and Genesis applications. You will only be able to use one different input at a time (although all controllers can be plugged in at the same time).
 
