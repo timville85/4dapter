@@ -2,8 +2,10 @@
 
 This software will allow the 4dapter to appear as a single Switch controller that maps all controller inputs as a single combined controller. The controller inputs have been mapped to align to map to the Nintendo Switch Virtual NES, SNES, and Genesis applications. You will only be able to use one different input at a time (although all controllers can be plugged in at the same time).
 
-![IMG_1289](https://github.com/timville85/4dapter/assets/31223405/be261e0e-7c7b-4d66-a467-6f785e9e4d02)
-![IMG_1283](https://github.com/timville85/4dapter/assets/31223405/ef0abcfb-1a11-40ba-a59b-c8b400074be6)
+<img src="https://github.com/timville85/4dapter/assets/31223405/be261e0e-7c7b-4d66-a467-6f785e9e4d02" width=22% height=22%>
+
+<img src="https://github.com/timville85/4dapter/assets/31223405/ef0abcfb-1a11-40ba-a59b-c8b400074be6" width=50% height=50%>
+
 
 This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRedMachine](https://github.com/CrazyRedMachine/Arduino-Lufa) and **`Switch-Fightstick`** from [progmem](https://github.com/progmem/Switch-Fightstick).
 
