@@ -3,11 +3,12 @@
 
 This software will allow the 4dapter to appear as a single Switch controller that maps all controller inputs as a single combined controller. The controller inputs have been mapped to align to map to the Nintendo Switch Virtual NES, SNES, and Genesis applications. You will only be able to use one different input at a time (although all controllers can be plugged in at the same time).
 
-<img src="https://github.com/timville85/4dapter/assets/31223405/be261e0e-7c7b-4d66-a467-6f785e9e4d02" width=22% height=22%>
+<img src="https://github.com/timville85/4dapter/assets/31223405/ef0abcfb-1a11-40ba-a59b-c8b400074be6" width=30% height=30%>
+<img src="https://github.com/timville85/4dapter/assets/31223405/1e0bf1f6-3932-423e-93d6-e7c35eedb27a" width=25% height=25%>
+<img src="https://github.com/timville85/4dapter/assets/31223405/64f502cb-03b1-4d93-b38f-2e75e7a82c00" width=25% height=25%>
 
-<img src="https://github.com/timville85/4dapter/assets/31223405/ef0abcfb-1a11-40ba-a59b-c8b400074be6" width=50% height=50%>
-
-This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRedMachine](https://github.com/CrazyRedMachine/Arduino-Lufa) and **`Switch-Fightstick`** from [progmem](https://github.com/progmem/Switch-Fightstick).
+This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRedMachine](https://github.com/CrazyRedMachine/A
+rduino-Lufa) and **`Switch-Fightstick`** from [progmem](https://github.com/progmem/Switch-Fightstick).
 
 ## 4dapter Bill of Materials (BOM)
 
@@ -36,6 +37,12 @@ This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRe
 * **1x 6mm x 6mm x 5mm Push Button:** [Digi-Key](https://www.digikey.com/en/products/detail/te-connectivity-alcoswitch-switches/1825910-6/1632536)
 
 * **2x 1x12 Female Header:** [Digi-Key](https://www.digikey.com/en/products/detail/sullins-connector-solutions/PPTC121LFBN-RC/807231)
+
+* **5x M2x10mm Screws for 3D Case**
+
+<img src="https://github.com/timville85/4dapter/assets/31223405/98f82b4f-083f-4438-bafa-7ce2acf0fb60" width=25% height=25%>
+<img src="https://github.com/timville85/4dapter/assets/31223405/7358a154-84c5-4bab-9e5e-43bf4f743833" width=25% height=25%>
+
 
 ## 4dapter Special Buttons
 
