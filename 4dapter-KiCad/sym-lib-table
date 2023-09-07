@@ -1,4 +1,0 @@
-(sym_lib_table
-  (version 7)
-  (lib (name "Retro Gaming")(type "KiCad")(uri "${KIPRJMOD}/RetroGaming Symbols/Retro Gaming.kicad_sym")(options "")(descr ""))
-)
