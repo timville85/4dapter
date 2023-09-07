@@ -1,0 +1,15 @@
+(footprint "NPTH Mounting Hole" (version 20221018) (generator pcbnew)
+  (layer "F.Cu")
+  (descr "Mounting Hole 2.5mm")
+  (tags "mounting hole 2.5mm")
+  (attr exclude_from_pos_files exclude_from_bom)
+  (fp_text reference "REF**" (at 0 -3.5) (layer "F.SilkS") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp b0d159af-9618-4829-874d-3430e6f7ebb8)
+  )
+  (fp_text value "NPTH Mounting Hole" (at 0 3.5) (layer "F.Fab") hide
+      (effects (font (size 1 1) (thickness 0.15)))
+    (tstamp a66d9676-65f1-4cd7-af47-6f84392abd2d)
+  )
+  (pad "" np_thru_hole circle (at 0 0) (size 2.5 2.5) (drill 2.5) (layers "F&B.Cu" "*.Mask") (tstamp 7f6882d9-8f4f-4bc1-a427-4c7693ee7a68))
+)
