@@ -67,7 +67,7 @@ SNES:
 N64:
 * OEM N64 Controller
 * Retro Fighters Brawler64 V1/V2
-* Retro Fighters Brawler Wireless Edition
+* Retro Fighters Brawler64 Wireless Edition
 
 ## 4dapter Bill of Materials (BOM)
 
