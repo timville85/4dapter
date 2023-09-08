@@ -1,14 +1,72 @@
 # 4dapter
-### Open Source Controller to Nintendo Switch Adapter
+### Open Source Controller Adapter for Nintendo Switch / MiSTer / XInput
 
-This software will allow the 4dapter to appear as a single Switch controller that maps all controller inputs as a single combined controller. The controller inputs have been mapped to align to map to the Nintendo Switch Virtual NES, SNES, and Genesis applications. You will only be able to use one different input at a time (although all controllers can be plugged in at the same time).
+This project combines the NES, SNES, N64 and Genesis DaemonBite Retro Controllers projects together with a custom PCB to support 4 different controllers with a single socketed Arduino Pro Micro. PCB (KiCad + Gerbers), 3D Cases, and muliple firmware versions (Arduino code) all available in this repository.
 
 <img src="https://github.com/timville85/4dapter/assets/31223405/ef0abcfb-1a11-40ba-a59b-c8b400074be6" width=30% height=30%>
 <img src="https://github.com/timville85/4dapter/assets/31223405/1e0bf1f6-3932-423e-93d6-e7c35eedb27a" width=25% height=25%>
 <img src="https://github.com/timville85/4dapter/assets/31223405/64f502cb-03b1-4d93-b38f-2e75e7a82c00" width=25% height=25%>
 
-This project uses code from the **`LUFA Arduino Board & Library`** from [CrazyRedMachine](https://github.com/CrazyRedMachine/A
-rduino-Lufa) and **`Switch-Fightstick`** from [progmem](https://github.com/progmem/Switch-Fightstick).
+PCB Kits + Fully Assembled units (with firmware of your choice) available on [Tindie](https://www.tindie.com/products/31785/)
+
+3 different firmware versions are available in this repo:
+* Default: Optimized for MiSTer, PC, Raspberry Pi, etc. - reports as 3 separate controllers (NES/SNES combined) and supports multiplayer from a single unit.
+* Analogue Pocket: Optimized for Pocket Dock - reports as a single wired XInput device.
+* Nintendo Switch: Optimized for Nintendo Switch Online NES, SNES, and Genesis collections - reports as a single wired switch controller.
+
+## Resources Used
+
+* [DaemonBite Retro Controllers](https://github.com/MickGyver/DaemonBite-Retro-Controllers-USB)
+* https://github.com/esden/pretty-kicad-libs
+* https://github.com/ddribin/nes-port-breadboard
+* https://github.com/Biacco42/ProMicroKiCad
+* http://www.neshq.com/hardgen/powerpad.txt
+
+See individual README files in firmware folders for more specific instructions on button assignments and firmware configurations.
+
+## 3D Case Files
+
+3D Case files were designed by [Dinierto Designs](https://www.etsy.com/shop/DiniertoDesigns) and are available on in the 3D Cases folder.
+
+## Wiring Diagram
+
+Current Draw Readings from DIO Pin 16 (used for 5v supply for DB9 port):
+* Krikzz Joyzz:	38mA
+* 8BitDo M30 2.4G: 29mA
+* OEM SEGA 3-Button Wired: 3mA
+* OEM SEGA 6-Button Wired: 3mA
+* Retrobit 6-Button Wired: 2mA
+(Arduino DIO Max Rated Current: 40mA)
+
+## Tested Controllers
+
+The following controllers have been personally tested and are supported with the Triple Controller. All listed devices also fit when using the 3D Case as well.
+
+NES:
+* OEM NES Controller
+* OEM NES PowerPad (Default FW Only)
+* 8BitDo N30 2.4G Receiver
+* 8BitDo NES Retro Receiver
+
+SEGA / Genesis:
+* OEM SEGA Master System 2-Button Controller
+* OEM Genesis 3-Button Controller
+* OEM Genesis 6-Button Controller
+* 8BitDo M30 2.4G Receiver
+* 8BitDo Genesis Retro Receiver
+* Krikzz Joyzz
+
+SNES:
+* OEM SNES Controller
+* OEM SFC Controller
+* OEM SNES NTT Controller (Default FW Only)
+* 8BitDo SN30 2.4G Receiver
+* 8BitDo SNES Retro Receiver
+
+N64:
+* OEM N64 Controller
+* Retro Fighters Brawler64 V1/V2
+* Retro Fighters Brawler Wireless Edition
 
 ## 4dapter Bill of Materials (BOM)
 
@@ -42,41 +100,6 @@ rduino-Lufa) and **`Switch-Fightstick`** from [progmem](https://github.com/progm
 
 <img src="https://github.com/timville85/4dapter/assets/31223405/98f82b4f-083f-4438-bafa-7ce2acf0fb60" width=25% height=25%>
 <img src="https://github.com/timville85/4dapter/assets/31223405/7358a154-84c5-4bab-9e5e-43bf4f743833" width=25% height=25%>
-
-
-## 4dapter Special Buttons
-
-**NES:**
-* In-Game Menu ("-" Button): Select + D-Pad Down
-* Home Button: Select + Start
-* Screenshot: Select + Up
-
-**SNES:**
-* In-Game Menu ("-" Button): Select + D-Pad Down
-* Home Button: Select + Start
-* Screenshot: Select + Up
-
-**Genesis (6-Button Mode):**
-* In-Game Menu ("-" Button): Mode + Down
-* Home Button: Mode + Start (or 8BitDo M30 Heart Button)
-* Screenshot: Mode + D-Pad Up
-* Special Mode to Swap Genesis X --> Switch RB (for SEGA Genesis Classics): Hold Mode + B for 1.5 Seconds
-
-**Genesis (3-Button Mode):**
-* In-Game Menu ("-" Button): Start + A + B + C
-* Home Button: Start + A + Down
-* Screenshot: Start + A + Up
-
-**N64:**
-* In-Game Menu ("-" Button): Start + D-Pad Down
-* Home Button: Start + L-Button + R-Button
-* Screenshot: Start + D-Pad Up
-* Special Mode to Swap N64 B --> Switch X (for Super Mario 3D All-Stars): Hold Start + D-Pad Down for 1.5 Seconds
-
-**NES / SNES / Genesis 6-Button:**
-Swap Directional Pad <--> Left Analog Joystick Toggle
-* Hold Select/Mode + Down for 1.5 seconds
-* Reports 8-Way Input (Cardinal + Diagonal)
 
 ## Arduino Code Install Instructions
 
