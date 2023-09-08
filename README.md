@@ -29,6 +29,7 @@ See individual README files in firmware folders for more specific instructions o
 3D Case files were designed by [Dinierto Designs](https://www.etsy.com/shop/DiniertoDesigns) and are available on in the 3D Cases folder.
 
 ## Wiring Diagram
+![3dapter _ 4dapter Controller Wiring](https://github.com/timville85/4dapter/assets/31223405/c3be99e9-c488-481c-99b0-5226c75ad8fe)
 
 Current Draw Readings from DIO Pin 16 (used for 5v supply for DB9 port):
 * Krikzz Joyzz:	38mA
