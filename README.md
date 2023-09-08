@@ -21,6 +21,7 @@ PCB Kits + Fully Assembled units (with firmware of your choice) available on [Ti
 * https://github.com/ddribin/nes-port-breadboard
 * https://github.com/Biacco42/ProMicroKiCad
 * http://www.neshq.com/hardgen/powerpad.txt
+* https://www.instructables.com/Use-an-Arduino-with-an-N64-controller/
 
 See individual README files in firmware folders for more specific instructions on button assignments and firmware configurations.
 
