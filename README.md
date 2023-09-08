@@ -101,22 +101,3 @@ N64:
 
 <img src="https://github.com/timville85/4dapter/assets/31223405/98f82b4f-083f-4438-bafa-7ce2acf0fb60" width=25% height=25%>
 <img src="https://github.com/timville85/4dapter/assets/31223405/7358a154-84c5-4bab-9e5e-43bf4f743833" width=25% height=25%>
-
-## Arduino Code Install Instructions
-
-**PLEASE NOTE: Installing this sketch will remove the self-reset listener functionality from the Arduino board. This means you will need to manually trigger a "reset" on the Arduino to replace the code on the board. A reset button has been included on the PCB to hanlde this situation.**
-
-**Note: If your board does not have a reset button, you can manually reset the Arduino by connecting the RST and GND pins together briefly.**
-
-1. Add the following URL as an Additional Board Manager URL (in File -> Preferences menu).
-`https://github.com/CrazyRedMachine/Arduino-Lufa/raw/master/package_arduino-lufa_index.json`
-
-2. Select and Install **`LUFA AVR Boards`** from the Arduino Board Manager.
-
-3. Select **`Arduino LUFA AVR Boards -> Arduino Leonardo (LUFA)`** as your board type.
-
-4. Download the project to the Arduino Pro Micro as normal. Remember after download your Arduino Pro Micro will no longer report as a serial device and will not appear in the "Port" list in the Arduino software.
-
-Note: If you are replacing existing code on the 4dapter, trigger the download from the Arduino software and then press the reset on the 4dapter within 1-2 seconds of starting the download. If the download fails initially due to not finding the COM port, repeat the download + reset process and it should work the second time.
-
-5. Your 4dapter will now show up as a Switch Controller. Remember that all controller inputs will report for the same player, so multiple players need multiple 4dapter units!
