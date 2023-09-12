@@ -14,7 +14,11 @@ PCB Kits + Fully Assembled units (with firmware of your choice) available on [Ti
 * Analogue Pocket: Optimized for Pocket Dock - reports as a single wired XInput device.
 * Nintendo Switch: Optimized for Nintendo Switch Online NES, SNES, and Genesis collections - reports as a single wired switch controller.
 
-## Resources Used
+## Resources and Thanks
+
+**Special thanks to** [Dinierto Designs](https://twitter.com/DiniertoDesigns) **and** [Super Retro City X](https://twitter.com/SuperRetroCity) **for their assistance during development and testing of the 4dapter.**
+
+**3D Case files were also designed by** [Dinierto Designs](https://twitter.com/DiniertoDesigns) **and are available in the 3D Cases folder.**
 
 * [DaemonBite Retro Controllers](https://github.com/MickGyver/DaemonBite-Retro-Controllers-USB)
 * https://github.com/esden/pretty-kicad-libs
@@ -24,10 +28,6 @@ PCB Kits + Fully Assembled units (with firmware of your choice) available on [Ti
 * https://www.instructables.com/Use-an-Arduino-with-an-N64-controller/
 
 See individual README files in firmware folders for more specific instructions on button assignments and firmware configurations.
-
-## 3D Case Files
-
-3D Case files were designed by [Dinierto Designs](https://www.etsy.com/shop/DiniertoDesigns) and are available on in the 3D Cases folder.
 
 ## Wiring Diagram
 ![3dapter _ 4dapter Controller Wiring (1)](https://github.com/timville85/4dapter/assets/31223405/84c51645-eefc-4a31-bbe4-704a30f0dd75)
