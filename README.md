@@ -14,6 +14,8 @@ PCB Kits + Fully Assembled units (with firmware of your choice) available on [Ti
 * Analogue Pocket: Optimized for Pocket Dock - reports as a single wired XInput device.
 * Nintendo Switch: Optimized for Nintendo Switch Online NES, SNES, and Genesis collections - reports as a single wired switch controller.
 
+**MiSTer Users - Important Info:** For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
+
 ## Resources and Thanks
 
 **Special thanks to** [Dinierto Designs](https://twitter.com/DiniertoDesigns) **and** [Super Retro City X](https://twitter.com/SuperRetroCity) **for their assistance during development and testing of the 4dapter.**
