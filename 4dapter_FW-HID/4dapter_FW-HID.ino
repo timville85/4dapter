@@ -26,9 +26,9 @@
 // Additionally serial number is used to differentiate arduino projects to have different button maps!
 const char *gp_serial = "4DAPTER";
 
-//Set N64 Joystick Maximum Travel Range (0-127, typically between 75-85 on OEM controllers)
-#define N64JoyMax       80
-#define N64JoyDeadzone  3
+#define N64MapJoyToMax  true  // 'true' to map value to DInput Max (-128 to +127), set to false to use controller value directly
+#define N64JoyMax       80     // N64 Joystick Maximum Travel Range (0-127, typically between 75-85 on OEM controllers)
+#define N64JoyDeadzone  3      // Deadzone to return 0, minimizes drift
 
 N64Controller       n64_controller;
 N64_status_packet   N64Data;
@@ -334,9 +334,16 @@ void loop()
       }
       else
       {
-        if(N64Data.stick_x > N64JoyMax)   N64Data.stick_x = N64JoyMax;
-        if(N64Data.stick_x < -N64JoyMax)  N64Data.stick_x = -N64JoyMax;
-        LeftX = map(N64Data.stick_x, -N64JoyMax, N64JoyMax, -128, 127);
+        if(N64MapJoyToMax)
+        {
+          LeftX = map(N64Data.stick_x, -N64JoyMax, N64JoyMax, -128, 127);
+          if(N64Data.stick_x > N64JoyMax)   N64Data.stick_x = N64JoyMax;
+          if(N64Data.stick_x < -N64JoyMax)  N64Data.stick_x = -N64JoyMax;
+        }
+        else
+        {
+          LeftX = (int8_t)N64Data.stick_x;
+        }
       }
 
       if(N64Data.stick_y >= -N64JoyDeadzone && N64Data.stick_y <= N64JoyDeadzone)
@@ -345,9 +352,16 @@ void loop()
       }
       else
       {
-        if(N64Data.stick_y > N64JoyMax)   N64Data.stick_y = N64JoyMax;
-        if(N64Data.stick_y < -N64JoyMax)  N64Data.stick_y = -N64JoyMax;
-        LeftY = map(-N64Data.stick_y, -N64JoyMax, N64JoyMax, -128, 127); 
+        if(N64MapJoyToMax)
+        {
+          if(N64Data.stick_y > N64JoyMax)   N64Data.stick_y = N64JoyMax;
+          if(N64Data.stick_y < -N64JoyMax)  N64Data.stick_y = -N64JoyMax;
+          LeftY = map(-N64Data.stick_y, -N64JoyMax, N64JoyMax, -128, 127); 
+        }
+        else
+        {
+          LeftY = (int8_t) -N64Data.stick_y;
+        }
       }
 
       Gamepad[2]._GamepadReport.buttons = 0;
