@@ -2,6 +2,8 @@
 
 The default HID firmware will allow the 4dapter to appear a multiplayer input controller with 3 controller inputs acting as it's own separate player/input (NES and SNES are combined due to Arduino USB endpoint limitations.)
 
+**Important:** For maximum compatibly, install the MiSTer Controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer.
+
 ## Controller Button Mapping
 
 To maintain proper button mapping on MiSTer, it's recommended to map the SNES controller on the MiSTer Main menu and the NES / Genesis controllers will align to their core defaults properly.
@@ -35,10 +37,9 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 22   N/A    N/A       NTT C    N/A          N/A          N/A
 23   N/A    N/A       N/A      N/A          N/A          N/A
 24   N/A    N/A       NTT End  N/A          N/A          N/A
-
-* GENESIS(MiSTer): Mode will send Select + Down
-* N64: [SPECIAL] is trigged by L + R + C-Down at the same time and sends Button 07 + Analog Down
 ```
+* **GENESIS(MiSTer):** Mode will send `Select & Down`
+* **N64:** [SPECIAL] is trigged by `L + R + C-Down` or `D-Down + Z` _(9-15-23 update)_ at the same time to send `Select & Down`
 
 ## MiSTer Home Menu Suggestion
 * **NES:** SELECT + DOWN
