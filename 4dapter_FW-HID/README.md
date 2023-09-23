@@ -2,6 +2,7 @@
 
 The default HID firmware will allow the 4dapter to appear a multiplayer input controller with 3 controller inputs acting as it's own separate player/input (NES and SNES are combined due to Arduino USB endpoint limitations.)
 
+_**Firmware + Button Configurations Last Updated: 9/23/2023**_
 
 ## MiSTer - Define Joystick Buttons (Mapping)
 
@@ -25,7 +26,7 @@ Press: X                   ---  C-Down Button
 Press: Y                   ---  C-Left Button
 Press: L                   ---  Left Bumper Button
 Press: R                   ---  Right Bumper Button
-Press: Select              ---  
+Press: Select              ---  C-Right Button
 Press: Start               ---  Start Button
 Press: Mouse Move RIGHT    ---  Undefine (User / Space to Skip)
 Press: Mouse Move LEFT     ---  Undefine (User / Space to Skip)
@@ -35,7 +36,7 @@ Press: Mouse Btn Left      ---  Undefine (User / Space to Skip)
 Press: Mouse Btn Right     ---  Undefine (User / Space to Skip)
 Press: Mouse Btn Middle    ---  Undefine (User / Space to Skip)
 Press: Mouse Emu/Sniper    ---  Undefine (User / Space to Skip)
-Press: Menu                ---
+Press: Menu                ---  C-Right Button + Analog Stick Down
 Press: Menu: OK            ---  A Button
 Press: Menu: Back          ---  B Button
 Stick 1: Tilt RIGHT        ---  Analog Stick Right
@@ -57,7 +58,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 04   N/A    Pad 04    X        X            Y            C-Down
 05   N/A    Pad 05    L        Z            Z            L
 06   N/A    Pad 06    R        C            C            R
-07   SELECT Pad 07    SELECT   MODE         MODE         [SPECIAL]
+07   SELECT Pad 07    SELECT   MODE         MODE         C-Right
 08   START  Pad 08    START    START        START        START
 09   N/A    Pad 09    NTT 0    HOME(8BitDo) [SPECIAL]    Z
 10   N/A    Pad 10    NTT 1    N/A          N/A          D-Up
@@ -65,7 +66,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 12   N/A    Pad 12    NTT 3    N/A          N/A          D-Left
 13   N/A    N/A       NTT 4    N/A          N/A          D-Right
 14   N/A    N/A       NTT 5    N/A          N/A          C-Up
-15   N/A    N/A       NTT 6    N/A          N/A          C-Right
+15   N/A    N/A       NTT 6    N/A          N/A          N/A
 16   N/A    N/A       NTT 7    N/A          N/A          N/A
 17   N/A    N/A       NTT 8    N/A          N/A          N/A
 18   N/A    N/A       NTT 9    N/A          N/A          N/A
