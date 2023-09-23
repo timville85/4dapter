@@ -11,7 +11,7 @@ For maximum compatibly, install the MiSTer controller Map file found in the [MiS
 ### Manual Mapping
 If manually mapping in the MiSTer main menu, use the N64 controller using the following steps and NES / SNES / Genesis will be appropriately mapped for their cores:
 ```
-DPAD Test: Press RIGHT     ---  D-Pad Right
+DPAD Test: Press RIGHT     ---  D-Right
 Stick 1 Test: Tilt RIGHT   ---  Analog Stick Right
 Stick 1 Test: Tilt DOWN    ---  Analog Stick Down
 Stick 2 Test: Tilt RIGHT   ---  Undefine (User / Space to Skip)
@@ -83,7 +83,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 * **NES:** SELECT + DOWN
 * **SNES:** SELECT + DOWN
 * **GENESIS:** MODE + DOWN
-* **N64:** Z + D-PAD DOWN
+* **N64:** Z + D-DOWN
 
 *Note: SELECT + DOWN = HOME on 8BitDo N30*
 
