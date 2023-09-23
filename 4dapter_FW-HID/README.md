@@ -3,12 +3,12 @@
 The default HID firmware will allow the 4dapter to appear a multiplayer input controller with 3 controller inputs acting as it's own separate player/input (NES and SNES are combined due to Arduino USB endpoint limitations.)
 
 
-# MiSTer - Define Joystick Buttons (Mapping)
+## MiSTer - Define Joystick Buttons (Mapping)
 
-## Via .map File
+### Via .map File
 For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
 
-## Manual Mapping
+### Manual Mapping
 If manually mapping in the MiSTer main menu, use the N64 controller using the following steps and NES / SNES / Genesis will be appropriately mapped for their cores:
 ```
 DPAD Test: Press RIGHT     ---  D-Pad Right
