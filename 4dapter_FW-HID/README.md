@@ -2,7 +2,45 @@
 
 The default HID firmware will allow the 4dapter to appear a multiplayer input controller with 3 controller inputs acting as it's own separate player/input (NES and SNES are combined due to Arduino USB endpoint limitations.)
 
-**Important:** For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
+
+# MiSTer - Define Joystick Buttons (Mapping)
+
+## Via .map File
+For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
+
+## Manual Mapping
+If manually mapping in the MiSTer main menu, use the N64 controller using the following steps and NES / SNES / Genesis will be appropriately mapped for their cores:
+```
+DPAD Test: Press RIGHT     ---  D-Pad Right
+Stick 1 Test: Tilt RIGHT   ---  Analog Stick Right
+Stick 1 Test: Tilt DOWN    ---  Analog Stick Down
+Stick 2 Test: Tilt RIGHT   ---  Undefine (User / Space to Skip)
+Press: RIGHT               ---  Analog Stick Right
+Press: LEFT                ---  Analog Stick Left
+Press: DOWN                ---  Analog Stick Down
+Press: UP                  ---  Analog Stick Up
+Press: A                   ---  A Button
+Press: B                   ---  B Button
+Press: X                   ---  C-Down Button
+Press: Y                   ---  C-Left Button
+Press: L                   ---  Left Bumper Button
+Press: R                   ---  Right Bumper Button
+Press: Select              ---  
+Press: Start               ---  Start Button
+Press: Mouse Move RIGHT    ---  Undefine (User / Space to Skip)
+Press: Mouse Move LEFT     ---  Undefine (User / Space to Skip)
+Press: Mouse Move DOWN     ---  Undefine (User / Space to Skip)
+Press: Mouse Move UP       ---  Undefine (User / Space to Skip)
+Press: Mouse Btn Left      ---  Undefine (User / Space to Skip)
+Press: Mouse Btn Right     ---  Undefine (User / Space to Skip)
+Press: Mouse Btn Middle    ---  Undefine (User / Space to Skip)
+Press: Mouse Emu/Sniper    ---  Undefine (User / Space to Skip)
+Press: Menu                ---
+Press: Menu: OK            ---  A Button
+Press: Menu: Back          ---  B Button
+Stick 1: Tilt RIGHT        ---  Analog Stick Right
+Stick 1: Tilt DOWN         ---  Analog Stick Down
+```
 
 ## Controller Button Mapping
 
