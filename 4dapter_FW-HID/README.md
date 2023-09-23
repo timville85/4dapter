@@ -44,7 +44,7 @@ Stick 1: Tilt DOWN         ---  Analog Stick Down
 
 ## Controller Button Mapping
 
-To maintain proper button mapping on MiSTer, it's recommended to map the SNES controller on the MiSTer Main menu and the NES / Genesis controllers will align to their core defaults properly.
+To maintain proper button mapping on MiSTer, it's recommended to map the N64 controller on the MiSTer Main menu and the NES /SNES / Genesis controllers will align to their core defaults properly.
 
 ```
      NES    PowerPad  SNES     GEN(normal)  GEN(MiSTer)  N64
@@ -83,6 +83,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 * **NES:** SELECT + DOWN
 * **SNES:** SELECT + DOWN
 * **GENESIS:** MODE + DOWN
+* **N64:** Z + D-PAD DOWN
 
 *Note: SELECT + DOWN = HOME on 8BitDo N30*
 
