@@ -9,7 +9,7 @@ _**Firmware + Button Configurations Last Updated: 9/23/2023**_
 ### Via .map File
 For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
 
-### Manual Mapping
+### Manual Mapping (Updated Sept. 23, 2023 - Must update FW to use)
 If manually mapping in the MiSTer main menu, use the N64 controller using the following steps and NES / SNES / Genesis will be appropriately mapped for their cores:
 ```
 DPAD Test: Press RIGHT     ---  D-Right
