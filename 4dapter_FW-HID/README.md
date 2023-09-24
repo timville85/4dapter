@@ -36,7 +36,7 @@ Press: Mouse Btn Left      ---  Undefine (User / Space to Skip)
 Press: Mouse Btn Right     ---  Undefine (User / Space to Skip)
 Press: Mouse Btn Middle    ---  Undefine (User / Space to Skip)
 Press: Mouse Emu/Sniper    ---  Undefine (User / Space to Skip)
-Press: Menu                ---  C-Right Button + Analog Stick Down
+Press: Menu                ---  C-Right Button + Analog Stick Down (makes Select/Mode + Down work for NES/SNES/GEN, but really your choice)
 Press: Menu: OK            ---  A Button
 Press: Menu: Back          ---  B Button
 Stick 1: Tilt RIGHT        ---  Analog Stick Right
