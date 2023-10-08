@@ -340,9 +340,9 @@ void loop()
       {
         if(N64MapJoyToMax)
         {
-          LeftX = map(N64Data.stick_x, -N64JoyMax, N64JoyMax, -128, 127);
           if(N64Data.stick_x > N64JoyMax)   N64Data.stick_x = N64JoyMax;
           if(N64Data.stick_x < -N64JoyMax)  N64Data.stick_x = -N64JoyMax;
+          LeftX = map(N64Data.stick_x, -N64JoyMax, N64JoyMax, -128, 127);
         }
         else
         {
