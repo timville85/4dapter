@@ -2,14 +2,7 @@
 
 This alternative firmware will allow the 4dapter to appear a single XInput controller. All 4 controller inputs will share the same singular player input (i.e. use only one controller at time). 
 
-The controller inputs have been mapped to align with the default mapping on the Analogue Pocket Dock (as of firmware 1.1).
-
-## IMPORTANT NOTE
-**Installing the XInput Library will remove the self-reset listener from the Arduino board. This means you will need to manually reset the Arduino when updating the code on the board or switching to a different firmware.**
-
-**You can accomplish this by connecting the RST and GND pins together - a tip of a screwdriver works well since the pins are next to each other.**
-
-<img src="https://github.com/timville85/TripleController/assets/31223405/b407d6e9-23bf-4204-840a-c814300fc317" width=30% height=30%>
+The controller inputs have been mapped to align with the default mapping on the Analogue Pocket Dock (as of firmware 2.0).
 
 ## IMPORTANT NOTE
 **Installing the XInput Library will remove the self-reset listener from the Arduino board. This means you will need to manually reset the Arduino when updating the code on the board or switching to a different firmware.**
