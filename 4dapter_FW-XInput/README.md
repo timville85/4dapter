@@ -11,6 +11,11 @@ The controller inputs have been mapped to align with the default mapping on the 
 
 <img src="https://github.com/timville85/TripleController/assets/31223405/b407d6e9-23bf-4204-840a-c814300fc317" width=30% height=30%>
 
+## IMPORTANT NOTE
+**Installing the XInput Library will remove the self-reset listener from the Arduino board. This means you will need to manually reset the Arduino when updating the code on the board or switching to a different firmware.**
+
+**You can accomplish this by pressing the reset button on the 4dapter (the small hole on the top of the case)**
+
 ### Resources Used
 
 * https://github.com/dmadison/ArduinoXInput
@@ -18,21 +23,27 @@ The controller inputs have been mapped to align with the default mapping on the 
 
 ## Install Instructions
 
-### 1. Install XInput Library from Arduino Library Manager
+**Instructions tested with Arduino 1.8.19 - not fully tested with Arduino 2.X!**
 
-![Library Installer](https://user-images.githubusercontent.com/31223405/210913898-79e7c503-dfee-435b-9685-0df4602176fe.png)
+### 1. Install XInput Library (tested with 1.2.6) from Arduino Library Manager
+
+<img src="https://github.com/timville85/TripleController/assets/31223405/38a2bc0b-d369-4d84-97ce-102e0bcb07e5" width=70% height=70%>
 
 ### 2. Add the following URL as an Additional Board Manager URL (in File -> Preferences menu)
 
 `https://raw.githubusercontent.com/dmadison/ArduinoXInput_Boards/master/package_dmadison_xinput_index.json`
 
-### 3. Install XInput Boards from Arduino Boards Manager
+<img src="https://github.com/timville85/TripleController/assets/31223405/1cba8973-0a96-4ce4-bb16-88dc7bfd06eb" width=70% height=70%>
 
-![Board Installer](https://user-images.githubusercontent.com/31223405/210913897-90a02f39-623b-473a-b531-b47f3c0cb15b.png)
+### 3. Install XInput AVR Boards (tested with 1.0.5) from Arduino Boards Manager
+
+_Note: Choose the AVR version, not Sparkfun_
+
+<img src="https://github.com/timville85/TripleController/assets/31223405/c6feadd6-1a90-4994-b593-7eb0eabc6d5f" width=70% height=70%>
 
 ### 4. Select "XInput AVR Boards - Arduino Leonardo w/ XInput" from Boards List
 
-![Board Selection](https://user-images.githubusercontent.com/31223405/210913895-d7c319d9-86e8-4e33-947e-3fe8e6cf977c.png)
+<img src="https://github.com/timville85/TripleController/assets/31223405/e22e636c-30b9-4465-9161-914a4f8581e1" width=70% height=70%>
 
 ### 5. Download project to Arduino Pro Micro board
 
