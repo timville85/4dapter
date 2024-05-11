@@ -27,10 +27,10 @@
 N64Controller       n64_controller;
 N64_status_packet   N64Data;
 
-int16_t LeftX = 0;
-int16_t LeftY = 0;
-int16_t RightX = 0;
-int16_t RightY = 0;
+int16_t LeftX = 128;
+int16_t LeftY = 128;
+int16_t RightX = 128;
+int16_t RightY = 128;
 
 #define NES       0
 #define SNES      1
@@ -298,6 +298,8 @@ void sendState()
   XInput.setButton(BUTTON_B,   (controllerData[NES][BUTTONS] & 0x02)  | (controllerData[SNES][BUTTONS] & 0x02) | (currentGenesisState & SC_BTN_C)     | (N64Data.data2 & 0x04 ? 1:0) );
   XInput.setButton(BUTTON_X,   (controllerData[SNES][BUTTONS] & 0x04) | (currentGenesisState & SC_BTN_A) | (N64Data.data1 & 0x40 ? 1:0));
   XInput.setButton(BUTTON_Y,   (controllerData[SNES][BUTTONS] & 0x08) | (currentGenesisState & SC_BTN_Y) | (N64Data.data2 & 0x02 ? 1:0));
+  XInput.setButton(BUTTON_L3,  (N64Data.data2 & 0x08 ? 1:0));
+  XInput.setButton(BUTTON_R3,  (N64Data.data2 & 0x01 ? 1:0));
   XInput.setTrigger(TRIGGER_RIGHT, (N64Data.data1 & 0x20 ? 1:0));
 
   XInput.setDpad( (controllerData[NES][AXES] & UP)          |  (controllerData[SNES][AXES] & UP)          | ((currentGenesisState & SC_BTN_UP) >> SC_BIT_SH_UP)       | (N64Data.data1 & 0x08 ? 1:0), 
@@ -308,19 +310,17 @@ void sendState()
 
   XInput.setButton(BUTTON_LB,     (controllerData[SNES][BUTTONS] & 0x10) | (currentGenesisState & SC_BTN_X) | (N64Data.data2 & 0x20 ? 1:0));
   XInput.setButton(BUTTON_RB,     (controllerData[SNES][BUTTONS] & 0x20) | (currentGenesisState & SC_BTN_Z) | (N64Data.data2 & 0x10 ? 1:0));
-  XInput.setButton(BUTTON_BACK,   (controllerData[NES][BUTTONS] & 0x40) | (controllerData[SNES][BUTTONS] & 0x40) | (currentGenesisState & SC_BTN_MODE)  | (N64Data.data2 & 0x08 ? 1:0) );
+  XInput.setButton(BUTTON_BACK,   (controllerData[NES][BUTTONS] & 0x40) | (controllerData[SNES][BUTTONS] & 0x40) | (currentGenesisState & SC_BTN_MODE) );
   XInput.setButton(BUTTON_START,  (controllerData[NES][BUTTONS] & 0x80) | (controllerData[SNES][BUTTONS] & 0x80) | (currentGenesisState & SC_BTN_START) | (N64Data.data1 & 0x10 ? 1:0) );
   XInput.setButton(BUTTON_LOGO,   (currentGenesisState & SC_BTN_HOME));
 
-  /*
-  if     ((N64Data.data2 & 0x08 ? 1:0)) RightY = 255;   // C-Up
-  else if((N64Data.data2 & 0x04 ? 1:0)) RightY = 0;     // C-Down
-  else                                  RightY = 128;   // Neither C-Up / C-Down
 
-  if     ((N64Data.data2 & 0x02 ? 1:0)) RightX = 0;     // C Left
-  else if((N64Data.data2 & 0x01 ? 1:0)) RightX = 255;   // C Right
-  else                                  RightX = 128;   // Neither C-Left / C-Right
-  */
+  if(N64Data.data2 & 0x80) //Use N64 "reset" as Back button without sending shoulder buttons
+  {
+    XInput.setButton(BUTTON_LB,   0);
+    XInput.setButton(BUTTON_RB,   0);
+    XInput.setButton(BUTTON_BACK, 1);
+  }
 
   //////////////////////////////////////////
 
