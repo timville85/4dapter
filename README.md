@@ -88,7 +88,7 @@ N64:
 
 * **1X N64 Socket:** [AliExpress - Gamers Zone Store](https://www.aliexpress.us/item/3256803534347876.html)
 
-* **1x Arduino Pro Micro (USB-C):** [AliExpress](https://www.aliexpress.com/item/32888212119.html)
+* **1x Arduino Pro Micro (USB-C 3-15V Version):** [AliExpress](https://www.aliexpress.us/item/2251832700923799.html)
 
 * **1x 1x3 90 Degree Male Header:** [Digi-Key](https://www.digikey.com/en/products/detail/sullins-connector-solutions/PREC003SBAN-M71RC/2774931)
 
