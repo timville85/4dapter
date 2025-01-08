@@ -112,7 +112,7 @@ void N64Controller::N64_send_data_request(unsigned char *buffer, char length)
     // listen for the expected 8 bytes of data back from the controller and
     // blast it out to the N64_raw_dump array, one bit per byte for extra speed.
 
-    timeout = 0x3f;
+    timeout = 0x7f;
     while (!N64_QUERY) 
     {
         if (!--timeout)
@@ -122,7 +122,7 @@ void N64Controller::N64_send_data_request(unsigned char *buffer, char length)
 read_loop:
    
     // wait for line to go low
-    timeout = 0x3f;
+    timeout = 0x7f;
     while (N64_QUERY) 
     {
         if (!--timeout)
