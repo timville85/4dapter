@@ -54,7 +54,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 04   N/A    Pad 04    X        X            Y            C-Down
 05   N/A    Pad 05    L        Z            Z            L
 06   N/A    Pad 06    R        C            C            R
-07   SELECT Pad 07    SELECT   MODE         MODE         [SPECIAL]
+07   SELECT Pad 07    SELECT   MODE         MODE         C-Right
 08   START  Pad 08    START    START        START        START
 09   N/A    Pad 09    NTT 0    HOME(8BitDo) [SPECIAL]    Z
 10   N/A    Pad 10    NTT 1    N/A          N/A          D-Up
@@ -62,7 +62,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 12   N/A    Pad 12    NTT 3    N/A          N/A          D-Left
 13   N/A    N/A       NTT 4    N/A          N/A          D-Right
 14   N/A    N/A       NTT 5    N/A          N/A          C-Up
-15   N/A    N/A       NTT 6    N/A          N/A          C-Right
+15   N/A    N/A       NTT 6    N/A          N/A          N/A
 16   N/A    N/A       NTT 7    N/A          N/A          N/A
 17   N/A    N/A       NTT 8    N/A          N/A          N/A
 18   N/A    N/A       NTT 9    N/A          N/A          N/A

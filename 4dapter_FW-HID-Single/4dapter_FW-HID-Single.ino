@@ -353,26 +353,7 @@ void loop()
         {
           LeftY = (int8_t) -N64Data.stick_y;
         }
-      }
-
-     
-      // L + R + C-Down to Generate Select + Down
-      if( (N64Data.data2 & 0x20 ? 1:0) && (N64Data.data2 & 0x10 ? 1:0) && (N64Data.data2 & 0x04 ? 1:0) )
-      {
-        n64Buttons = 1 << 6; // Select
-        n64Y = 127;
-        n64X = 0;
-        continue;
-      }
-      
-      // Z + D-Down to Generate Select + Down
-      else if ((N64Data.data1 & 0x20 ? 1:0) && (N64Data.data1 & 0x04 ? 1:0))
-      {
-        n64Buttons = 1 << 6; // Select
-        n64Y = 127;
-        n64X = 0;
-        continue;
-      }
+      } 
       
       // Normal mapping
       else
@@ -382,7 +363,7 @@ void loop()
         n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Up
         n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
         n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
-        n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 14; // C-Right
+        n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
 
         n64Buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
         n64Buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
