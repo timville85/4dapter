@@ -368,8 +368,8 @@ void loop()
       if( (N64Data.data2 & 0x20 ? 1:0) && (N64Data.data2 & 0x10 ? 1:0) && (N64Data.data2 & 0x04 ? 1:0) )
       {
         Gamepad[2]._GamepadReport.buttons = 1 << 6; // Select
-        Gamepad[2]._GamepadReport.Y = 0;
-        Gamepad[2]._GamepadReport.X = 127;
+        Gamepad[2]._GamepadReport.X = 0;
+        Gamepad[2]._GamepadReport.Y = 127;
         continue;
       }
       
@@ -377,8 +377,8 @@ void loop()
       else if ((N64Data.data1 & 0x20 ? 1:0) && (N64Data.data1 & 0x04 ? 1:0))
       {
         Gamepad[2]._GamepadReport.buttons = 1 << 6; // Select
-        Gamepad[2]._GamepadReport.Y = 0;
-        Gamepad[2]._GamepadReport.X = 127;
+        Gamepad[2]._GamepadReport.X = 0;
+        Gamepad[2]._GamepadReport.Y = 127;
         continue;
       }
       
@@ -390,7 +390,7 @@ void loop()
         Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Uup
         Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
         Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6; // C-Right
+        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x01 ? 1:0) << 14; // C-Right
 
         Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
         Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
