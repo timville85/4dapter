@@ -2,52 +2,9 @@
 
 The default HID firmware will allow the 4dapter to appear a multiplayer input controller with 3 controller inputs acting as it's own separate player/input (NES and SNES are combined due to Arduino USB endpoint limitations.)
 
-_**Firmware + Button Configurations Last Updated: 9/23/2023**_
-
-## MiSTer - Define Joystick Buttons (Mapping)
-
-### Via .map File
-For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
-
-### Manual Mapping (Updated Sept. 23, 2023 - Must update FW to use)
-If manually mapping in the MiSTer main menu, use the N64 controller using the following steps and NES / SNES / Genesis will be appropriately mapped for their cores:
-```
-DPAD Test: Press RIGHT     ---  D-Right
-Stick 1 Test: Tilt RIGHT   ---  Analog Stick Right
-Stick 1 Test: Tilt DOWN    ---  Analog Stick Down
-Stick 2 Test: Tilt RIGHT   ---  Undefine (User / Space to Skip)
-Press: RIGHT               ---  Analog Stick Right
-Press: LEFT                ---  Analog Stick Left
-Press: DOWN                ---  Analog Stick Down
-Press: UP                  ---  Analog Stick Up
-Press: A                   ---  A Button
-Press: B                   ---  B Button
-Press: X                   ---  C-Down Button
-Press: Y                   ---  C-Left Button
-Press: L                   ---  Left Bumper Button
-Press: R                   ---  Right Bumper Button
-Press: Select              ---  C-Right Button
-Press: Start               ---  Start Button
-Press: Mouse Move RIGHT    ---  Undefine (User / Space to Skip)
-Press: Mouse Move LEFT     ---  Undefine (User / Space to Skip)
-Press: Mouse Move DOWN     ---  Undefine (User / Space to Skip)
-Press: Mouse Move UP       ---  Undefine (User / Space to Skip)
-Press: Mouse Btn Left      ---  Undefine (User / Space to Skip)
-Press: Mouse Btn Right     ---  Undefine (User / Space to Skip)
-Press: Mouse Btn Middle    ---  Undefine (User / Space to Skip)
-Press: Mouse Emu/Sniper    ---  Undefine (User / Space to Skip)
-Press: Menu                ---  C-Right Button + Analog Stick Down
-Note: C-Right Button + Analog Stick Down makes Select/Mode + Down work for NES/SNES/GEN
-      This may cause menu to appear in some gameplay, so adapt as needed.
-Press: Menu: OK            ---  A Button
-Press: Menu: Back          ---  B Button
-Stick 1: Tilt RIGHT        ---  Analog Stick Right
-Stick 1: Tilt DOWN         ---  Analog Stick Down
-```
-
 ## Controller Button Mapping
 
-To maintain proper button mapping on MiSTer, it's recommended to map the N64 controller on the MiSTer Main menu and the NES /SNES / Genesis controllers will align to their core defaults properly.
+To maintain proper button mapping on MiSTer, it's recommended to map the SNES controller on the MiSTer Main menu and the NES / Genesis controllers will align to their core defaults properly.
 
 ```
      NES    PowerPad  SNES     GEN(normal)  GEN(MiSTer)  N64
@@ -78,15 +35,14 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 22   N/A    N/A       NTT C    N/A          N/A          N/A
 23   N/A    N/A       N/A      N/A          N/A          N/A
 24   N/A    N/A       NTT End  N/A          N/A          N/A
+
+* GENESIS(MiSTer): Mode will send Select + Down
 ```
-* **GENESIS(MiSTer):** Mode will send `Select & Down`
-* **N64:** [SPECIAL] is trigged by `L + R + C-Down` or `D-Down + Z` _(9-15-23 update)_ at the same time to send `Select & Down`
 
 ## MiSTer Home Menu Suggestion
 * **NES:** SELECT + DOWN
 * **SNES:** SELECT + DOWN
 * **GENESIS:** MODE + DOWN
-* **N64:** Z + D-DOWN
 
 *Note: SELECT + DOWN = HOME on 8BitDo N30*
 
@@ -127,5 +83,3 @@ To restore the default firmware for your Arduino Pro Micro, you will need to man
 2. Connect your Arduino Pro Micro to your computer.
 3. Trigger the download from the Arduino software. The Arduino software will first compile the project before beginning the download.
 4. Once the "compiling" step has finished, trigger a reset on the Arduino Pro Micro by briefly touching the Reset (RST) and Ground (GND) pins together. This should make the Arduino forcefully switch into bootloader mode and allow the download to complete. If the download fails initially due to not finding the COM port, repeat the download/reset process and it should work the second time.
-
-<img src="https://github.com/timville85/TripleController/assets/31223405/b407d6e9-23bf-4204-840a-c814300fc317" width=30% height=30%>

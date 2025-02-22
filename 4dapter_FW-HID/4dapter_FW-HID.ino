@@ -368,44 +368,23 @@ void loop()
         }
       }
 
-     
-      // L + R + C-Down to Generate Select + Down
-      if( (N64Data.data2 & 0x20 ? 1:0) && (N64Data.data2 & 0x10 ? 1:0) && (N64Data.data2 & 0x04 ? 1:0) )
-      {
-        Gamepad[2]._GamepadReport.buttons = 1 << 6; // Select
-        Gamepad[2]._GamepadReport.X = 0;
-        Gamepad[2]._GamepadReport.Y = 127;
-        continue;
-      }
-      
-      // Z + D-Down to Generate Select + Down
-      else if ((N64Data.data1 & 0x20 ? 1:0) && (N64Data.data1 & 0x04 ? 1:0))
-      {
-        Gamepad[2]._GamepadReport.buttons = 1 << 6; // Select
-        Gamepad[2]._GamepadReport.X = 0;
-        Gamepad[2]._GamepadReport.Y = 127;
-        continue;
-      }
-      
-      // Normal mapping
-      else
-      {
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Uup
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x01 ? 1:0) << 14; // C-Right
 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
-        Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
-      }
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Uup
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
+
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
+      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
+
 
       Gamepad[2]._GamepadReport.buttons &= 0x0000FFFF;
       
