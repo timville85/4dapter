@@ -74,7 +74,6 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 24   N/A    N/A       NTT End  N/A          N/A          N/A
 
 * GENESIS(MiSTer): Mode will send Select + Down
-* N64: [SPECIAL] is trigged by L + R + C-Down at the same time and sends Button 07 + Analog Down
 ```
 
 ## MiSTer Home Menu Suggestion
