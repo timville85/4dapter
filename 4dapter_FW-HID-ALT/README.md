@@ -2,14 +2,12 @@
 
 The default HID firmware will allow the 4dapter to appear a multiplayer input controller with 3 controller inputs acting as it's own separate player/input (**N64 and Genesis** are combined due to Arduino USB endpoint limitations.)
 
-_**Firmware + Button Configurations Last Updated: 9/23/2023**_
-
 ## MiSTer - Define Joystick Buttons (Mapping)
 
 ### Via .map File
 For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
 
-### Manual Mapping (Updated Sept. 23, 2023 - Must update FW to use)
+### Manual Mapping 
 If manually mapping in the MiSTer main menu, use the N64 controller using the following steps and NES / SNES / Genesis will be appropriately mapped for their cores:
 ```
 DPAD Test: Press RIGHT     ---  D-Right
@@ -60,7 +58,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 04   N/A    Pad 04    X        X            Y            C-Down
 05   N/A    Pad 05    L        Z            Z            L
 06   N/A    Pad 06    R        C            C            R
-07   SELECT Pad 07    SELECT   MODE         MODE         [SPECIAL]
+07   SELECT Pad 07    SELECT   MODE         MODE         C-Right
 08   START  Pad 08    START    START        START        START
 09   N/A    Pad 09    NTT 0    HOME(8BitDo) [SPECIAL]    Z
 10   N/A    Pad 10    NTT 1    N/A          N/A          D-Up
@@ -68,7 +66,7 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 12   N/A    Pad 12    NTT 3    N/A          N/A          D-Left
 13   N/A    N/A       NTT 4    N/A          N/A          D-Right
 14   N/A    N/A       NTT 5    N/A          N/A          C-Up
-15   N/A    N/A       NTT 6    N/A          N/A          C-Right
+15   N/A    N/A       NTT 6    N/A          N/A          N/A
 16   N/A    N/A       NTT 7    N/A          N/A          N/A
 17   N/A    N/A       NTT 8    N/A          N/A          N/A
 18   N/A    N/A       NTT 9    N/A          N/A          N/A
@@ -80,7 +78,6 @@ Y    L/R    N/A       L/R      L/R          L/R          Stick L/R
 24   N/A    N/A       NTT End  N/A          N/A          N/A
 
 * GENESIS(MiSTer): Mode will send Select + Down
-* N64: [SPECIAL] is trigged by L + R + C-Down at the same time and sends Button 07 + Analog Down
 ```
 
 ## MiSTer Home Menu Suggestion
