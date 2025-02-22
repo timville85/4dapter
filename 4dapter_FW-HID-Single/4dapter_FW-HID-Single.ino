@@ -355,27 +355,24 @@ void loop()
         }
       } 
       
-      // Normal mapping
-      else
-      {
-        n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
-        n64Buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
-        n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Up
-        n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
-        n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
-        n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
+      n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
+      n64Buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
+      n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Up
+      n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
+      n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
+      n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
 
-        n64Buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
-        n64Buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
-        n64Buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
-        n64Buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
-        n64Buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
-        n64Buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
-        n64Buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
-        n64Buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right (Select)
-      }
+      n64Buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
+      n64Buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
+      n64Buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
+      n64Buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
+      n64Buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
+      n64Buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
+      n64Buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
+      n64Buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
 
       n64Buttons &= 0x0000FFFF;
+      
       n64X = LeftX;
       n64Y = LeftY;
     }    
