@@ -7,9 +7,9 @@ This firmware will allow usage of the 4dapter in Batocera as long as this line i
 ```c++
 #define N64Mister       false
 ```
-NES, SNES, Genesis controllers will be mapping automatically for immediate use. N64 controllers will need to be re-mapped in Retroarch (Mupen64Plus-Next) according to the diagram below
+NES, SNES, Genesis controllers will be mapped automatically for immediate use. N64 controllers will need to be re-mapped in Retroarch (Mupen64Plus-Next) according to the diagram below
 ![n64-mapping.png](n64-mapping.png)
-An example re-map for player 1 is in [Mupen64Plus-Next.rmp](Mupen64Plus-Next.rmp)
+An example re-map for player 1 is in [Mupen64Plus-Next.rmp](Mupen64Plus-Next.rmp) which can be manually copied to `/userdata/system/.config/retroarch/config/remaps/Mupen64Plus-Next`
 
 ### Older versions of Batocera
 This mapping will be added to Batocera in version 42+ but can be manually added to your `/userdata/system/configs/emulationstation/es_input.cfg` with the content in [es_last_inpug.cfg](es_last_input.cfg)
