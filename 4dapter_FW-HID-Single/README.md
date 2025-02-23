@@ -106,10 +106,16 @@ When the Genesis controller is in MiSTer mode:
 - Buttons are swapped: A with B and X with Y. This is such that the position of the buttons is consistent between SNES and Genesis.
 
 ## Install Instructions
+You can update the firmare using [Arduino IDE](https://www.arduino.cc/en/software)
+
+From Arudino IDE, `file -> open` then select [4dapter_FW-HID-Single](4dapter_FW-HID-Single)
 
 ### 1. Select "Arduino AVR Boards - Arduino Leonardo" from Boards List
+![arduino.png](arduino.png)
 
 ### 2. Download project to Arduino Pro Micro board
+Select `upload` in the Arduino IDE
+> You will to manually reset by pressing the tip of a flatheader screwdriver for 1 second after selecting `upload` by following the instructions below 
 
 ## Restoring Firmware After Alternative Firmware Downloads
 
