@@ -12,7 +12,7 @@ NES, SNES, Genesis controllers will be mapped automatically for immediate use. N
 An example re-map for player 1 is in [Mupen64Plus-Next.rmp](Mupen64Plus-Next.rmp) which can be manually copied to `/userdata/system/.config/retroarch/config/remaps/Mupen64Plus-Next`
 
 ### Older versions of Batocera
-This mapping will be added to Batocera in version 42+ but can be manually added to your `/userdata/system/configs/emulationstation/es_input.cfg` with the content in [es_last_inpug.cfg](es_last_input.cfg)
+This mapping will be added to Batocera in version 42+ but can be manually added to your `/userdata/system/configs/emulationstation/es_input.cfg` with the content in [es_last_input.cfg](es_last_input.cfg)
 
 ## MiSTer - Define Joystick Buttons (Mapping)
 
