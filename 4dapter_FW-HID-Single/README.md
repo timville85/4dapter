@@ -115,7 +115,7 @@ From Arudino IDE, `file -> open` then select [4dapter_FW-HID-Single](4dapter_FW-
 
 ### 2. Download project to Arduino Pro Micro board
 Select `upload` in the Arduino IDE
-> You will to manually reset by pressing the tip of a flatheader screwdriver for 1 second after selecting `upload` by following the instructions below 
+> You will need to manually reset by pressing the tip of a flatheader screwdriver for 1 second on the board after selecting `upload` by following the instructions below 
 
 ## Restoring Firmware After Alternative Firmware Downloads
 
