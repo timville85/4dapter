@@ -2,6 +2,18 @@
 
 The default HID firmware will allow the 4dapter to appear as a single controller with all 4 inputs merged into one.
 
+## [Batocera](https://batocera.org/)
+This firmware will allow usage of the 4dapter in Batocera as long as this line is set to `false` in [4dapter_FW-HID-Single](4dapter_FW-HID-Single)
+```c++
+#define N64Mister       false
+```
+NES, SNES, Genesis controllers will be mapping automatically for immediate use. N64 controllers will need to be re-mapped in Retroarch (Mupen64Plus-Next) according to the diagram below
+![n64-mapping.png](n64-mapping.png)
+An example re-map for player 1 is in [Mupen64Plus-Next.rmp](Mupen64Plus-Next.rmp)
+
+### Older versions of Batocera
+This mapping will be added to Batocera in version 42+ but can be manually added to your `/userdata/system/configs/emulationstation/es_input.cfg` with the content in [es_last_inpug.cfg](es_last_input.cfg)
+
 ## MiSTer - Define Joystick Buttons (Mapping)
 
 ### Manual Mapping
