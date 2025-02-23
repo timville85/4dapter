@@ -26,7 +26,7 @@
 // Additionally serial number is used to differentiate arduino projects to have different button maps!
 const char *gp_serial = "4DAPTER";
 
-#define N64Mister       false  // 'true' to map N64 C-Buttons to align with SNES, 'false' to set C-Button to their own inputs
+#define N64Mister       true  // 'true' to map N64 C-Buttons to align with SNES, 'false' to set C-Button to their own inputs
 #define N64MapJoyToMax  true   // 'true' to map value to DInput Max (-128 to +127), set to false to use controller value directly
 #define N64JoyMax       80     // N64 Joystick Maximum Travel Range (0-127, typically between 75-85 on OEM controllers)
 #define N64JoyDeadzone  3      // Deadzone to return 0, minimizes drift
