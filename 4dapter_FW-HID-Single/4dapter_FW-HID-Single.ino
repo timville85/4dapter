@@ -26,7 +26,8 @@
 // Additionally serial number is used to differentiate arduino projects to have different button maps!
 const char *gp_serial = "4DAPTER";
 
-#define N64MapJoyToMax  true  // 'true' to map value to DInput Max (-128 to +127), set to false to use controller value directly
+#define N64Mister       false  // 'true' to map N64 C-Buttons to align with SNES, 'false' to set C-Button to their own inputs
+#define N64MapJoyToMax  true   // 'true' to map value to DInput Max (-128 to +127), set to false to use controller value directly
 #define N64JoyMax       80     // N64 Joystick Maximum Travel Range (0-127, typically between 75-85 on OEM controllers)
 #define N64JoyDeadzone  3      // Deadzone to return 0, minimizes drift
 
@@ -134,7 +135,7 @@ SegaController32U4 controller(GENESIS_EEPROM);
 // Controllers
 uint32_t  controllerData[2][2] = {{0,0},{0,0}};
 uint32_t  axisIndicator[32] = {0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-uint16_t  currentState = 0;
+uint32_t  currentState = 0;
 
 uint32_t  n64Buttons = 0;
   int8_t  n64X;
@@ -354,24 +355,50 @@ void loop()
           LeftY = (int8_t) -N64Data.stick_y;
         }
       } 
-      
-      n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
-      n64Buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
-      n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Up
-      n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
-      n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
-      n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
 
-      n64Buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
-      n64Buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
-      n64Buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
-      n64Buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
-      n64Buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
-      n64Buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
-      n64Buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
-      n64Buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
 
-      n64Buttons &= 0x0000FFFF;
+      if(N64Mister == true)
+      {
+        n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
+        n64Buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
+        n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Up
+        n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
+        n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
+        n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
+  
+        n64Buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
+        n64Buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
+        n64Buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
+        n64Buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
+        n64Buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
+        n64Buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
+        n64Buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
+        n64Buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
+  
+        n64Buttons &= 0x0000FFFF;
+      }
+      else
+      {
+        n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
+        n64Buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
+        n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Up
+        n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 14; // C-Down 
+        n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 15; // C-Left 
+        
+        n64Buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
+        n64Buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
+        n64Buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
+        n64Buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
+        n64Buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
+        n64Buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
+        n64Buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
+        n64Buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
+  
+        n64Buttons &= 0x0000FFFF;
+  
+        if(N64Data.data2 & 0x01) // C-Right
+          n64Buttons |= 0x00010000;
+      }
       
       n64X = LeftX;
       n64Y = LeftY;
