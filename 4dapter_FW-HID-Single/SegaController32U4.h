@@ -31,6 +31,7 @@
 #define DDR_SELECT   DDRE
 #define PORT_SELECT  PORTE
 #define MASK_SELECT  B01000000
+#define GEN_MISTER   true
 
 /*
   SC_BTN_A     = 64,
@@ -41,6 +42,8 @@
   SC_BTN_Z     = 512,
  */
 
+
+#if (GEN_MISTER == true)  // MiSTer Config
 enum
 {
   SC_BTN_UP    = 1,
@@ -67,6 +70,34 @@ enum
   DB9_PIN6_BIT = 3,
   DB9_PIN9_BIT = 1
 };
+#else // Batocera Config
+enum
+{
+  SC_BTN_UP    = 1,
+  SC_BTN_DOWN  = 2,
+  SC_BTN_LEFT  = 4,
+  SC_BTN_RIGHT = 8,
+  SC_BTN_A     = 64,
+  SC_BTN_B     = 16,
+  SC_BTN_C     = 32,
+  SC_BTN_X     = 256,
+  SC_BTN_Y     = 128,
+  SC_BTN_Z     = 512,
+  SC_BTN_MODE  = 1024,
+  SC_BTN_START = 2048,
+  SC_BTN_HOME  = 4096,
+  SC_BIT_SH_UP    = 0,
+  SC_BIT_SH_DOWN  = 1,
+  SC_BIT_SH_LEFT  = 2,
+  SC_BIT_SH_RIGHT = 3,
+  DB9_PIN1_BIT = 6,
+  DB9_PIN2_BIT = 7,
+  DB9_PIN3_BIT = 5,
+  DB9_PIN4_BIT = 4,
+  DB9_PIN6_BIT = 3,
+  DB9_PIN9_BIT = 1
+};
+#endif
 
 const byte SC_CYCLE_DELAY = 10; // Delay (µs) between setting the select pin and reading the button pins
 
