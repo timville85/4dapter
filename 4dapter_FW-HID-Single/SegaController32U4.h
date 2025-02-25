@@ -31,7 +31,7 @@
 #define DDR_SELECT   DDRE
 #define PORT_SELECT  PORTE
 #define MASK_SELECT  B01000000
-#define GEN_MISTER   true
+#define GEN_MISTER   false
 
 /*
   SC_BTN_A     = 64,
