@@ -2,6 +2,24 @@
 
 The default HID firmware will allow the 4dapter to appear as a single controller with all 4 inputs merged into one.
 
+## [Batocera](https://batocera.org/)
+This firmware will allow usage of the 4dapter in Batocera as long as 2 lines are set to `false`. The first is in [4dapter_FW-HID-Single.ino](4dapter_FW-HID-Single.ino)
+```c++
+#define N64Mister       false
+```
+
+The second is in [SegaController32U4.h](SegaController32U4.h)
+```c++
+#define GEN_MISTER       false
+```
+
+NES, SNES, Genesis controllers will be mapped automatically for immediate use. N64 controllers will need to be re-mapped in Retroarch (Mupen64Plus-Next) according to the diagram below
+![n64-mapping.png](n64-mapping.png)
+An example re-map for player 1 is in [Mupen64Plus-Next.rmp](Mupen64Plus-Next.rmp) which can be manually copied to `/userdata/system/.config/retroarch/config/remaps/Mupen64Plus-Next`
+
+### Older versions of Batocera
+This mapping will be added to Batocera in version 42+ but can be manually added to your `/userdata/system/configs/emulationstation/es_input.cfg` with the content in [es_last_input.cfg](es_last_input.cfg)
+
 ## MiSTer - Define Joystick Buttons (Mapping)
 
 ### Manual Mapping
@@ -94,10 +112,16 @@ When the Genesis controller is in MiSTer mode:
 - Buttons are swapped: A with B and X with Y. This is such that the position of the buttons is consistent between SNES and Genesis.
 
 ## Install Instructions
+You can update the firmare using [Arduino IDE](https://www.arduino.cc/en/software)
+
+From Arudino IDE, `file -> open` then select [4dapter_FW-HID-Single](4dapter_FW-HID-Single)
 
 ### 1. Select "Arduino AVR Boards - Arduino Leonardo" from Boards List
+![arduino.png](arduino.png)
 
 ### 2. Download project to Arduino Pro Micro board
+Select `upload` in the Arduino IDE
+> You will need to manually reset by pressing the tip of a flatheader screwdriver for 1 second on the board after selecting `upload` by following the instructions below 
 
 ## Restoring Firmware After Alternative Firmware Downloads
 
