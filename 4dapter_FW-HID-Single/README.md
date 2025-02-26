@@ -1,9 +1,11 @@
-# 4dapter - HID Firmware (Single) for MiSTer / PC
+# 4dapter - HID Firmware (Single) for Batocera / PC
 
 The default HID firmware will allow the 4dapter to appear as a single controller with all 4 inputs merged into one.
 
 ## [Batocera](https://batocera.org/)
-This firmware will allow usage of the 4dapter in Batocera as long as 2 lines are set to `false`. The first is in [4dapter_FW-HID-Single.ino](4dapter_FW-HID-Single.ino)
+This firmware will allow usage of the 4dapter in Batocera by **default** - no code changes are required for this flavor of the 4dapter firmware. 
+
+This compatibility happens by setting 2 lines to `false`. The first is in [4dapter_FW-HID-Single.ino](4dapter_FW-HID-Single.ino)
 ```c++
 #define N64Mister       false
 ```
