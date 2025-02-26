@@ -1,5 +1,5 @@
 # 4dapter
-### Open Source Controller Adapter for Nintendo Switch / MiSTer / XInput
+### Open Source Controller Adapter for Nintendo Switch / MiSTer / XInput / Batocera / RetroArch
 
 This project combines the NES, SNES, N64 and Genesis DaemonBite Retro Controllers projects together with a custom PCB to support 4 different controllers with a single socketed Arduino Pro Micro. PCB (KiCad + Gerbers), 3D Cases, and muliple firmware versions (Arduino code) all available in this repository.
 
@@ -18,7 +18,7 @@ PCB Kits + Fully Assembled units (with firmware of your choice) available on [Ti
 
 ## Resources and Thanks
 
-**Special thanks to** [Dinierto Designs](https://twitter.com/DiniertoDesigns) **and** [Super Retro City X](https://twitter.com/SuperRetroCity) **for their assistance during development and testing of the 4dapter.**
+**Special thanks to** [Dinierto Designs](https://twitter.com/DiniertoDesigns) **and** [Super Retro City X](https://twitter.com/SuperRetroCity) **for their assistance during development and testing of the 4dapter. Also thanks to** [Mechevarria](https://github.com/mechevarria) **for Batocera support and testing.**
 
 **3D Case files were also designed by** [Dinierto Designs](https://twitter.com/DiniertoDesigns) **and are available in the 3D Cases folder.**
 
