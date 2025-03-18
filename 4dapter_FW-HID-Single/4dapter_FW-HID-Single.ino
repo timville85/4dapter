@@ -379,10 +379,10 @@
        }
        else
        {
-         n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
+         n64Buttons |= (N64Data.data2 & 0x20 ? 1:0) << 6;  // L 
          n64Buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
          n64Buttons |= (N64Data.data2 & 0x08 ? 1:0) << 3;  // C-Up
-         n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 6;  // C-Down 
+         n64Buttons |= (N64Data.data2 & 0x04 ? 1:0) << 4;  // C-Down 
          n64Buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left
          n64Buttons |= (N64Data.data2 & 0x01 ? 1:0) << 13; // C-Right 
          
