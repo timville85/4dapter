@@ -16,7 +16,7 @@ The second is in [SegaController32U4.h](SegaController32U4.h)
 ```
 
 NES, SNES, Genesis controllers will be mapped automatically for immediate use. N64 controllers will need to be re-mapped in Retroarch (Mupen64Plus-Next) according to the diagram below
-![n64-mapping.png](n64-mapping.png)
+![n64-mapping.jpg](n64-mapping.jpg)
 An example re-map for player 1 is in [Mupen64Plus-Next.rmp](Mupen64Plus-Next.rmp) which can be manually copied to `/userdata/system/.config/retroarch/config/remaps/Mupen64Plus-Next`
 
 ### Older versions of Batocera
