@@ -1,0 +1,2 @@
+compiler.c.extra_flags=-DCDC_DISABLED
+compiler.cpp.extra_flags=-DCDC_DISABLED
