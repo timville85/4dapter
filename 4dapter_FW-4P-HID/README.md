@@ -7,7 +7,11 @@ This firmware reports **four controller ports as separate USB HID gamepads** (fo
 - **Gamepad 2:** Genesis  
 - **Gamepad 3:** N64  
 
+**Recommended for MiSTer:** This 4-endpoint firmware is designed and optimized for MiSTer FPGA devices, where all four controller ports are correctly recognized. For PC or browser use, fewer endpoints may appear (see [Windows](#windows-only-3-controllers-visible-same-firmware-shows-4-on-maclinux) and [browser](#browser-gamepad-api) limitations below).
+
 To get all four endpoints, **CDC (USB serial) must be disabled** at build time. See [Build setup (4 HID endpoints)](#build-setup-4-hid-endpoints) below.
+
+**Windows:** On Windows, only 3 controller endpoints may appear even with correct firmware—this may be a [Windows limitation](#windows-only-3-controllers-visible-same-firmware-shows-4-on-maclinux).
 
 ---
 
@@ -27,6 +31,8 @@ Example (your path may differ by OS or Arduino version):
 - **Windows:** `%LOCALAPPDATA%\Arduino15\packages\arduino\hardware\avr\1.8.7\`
 - **Linux:** `~/.arduino15/packages/arduino/hardware/avr/1.8.7/`
 
+**If you build on multiple computers (e.g. Mac and Windows), you must add `platform.local.txt` and clear the build cache on each machine.** Otherwise you may see 4 controller endpoints on one and only 3 on the other, because the firmware was compiled with different options (CDC on vs off).
+
 Copy the **`platform.local.txt`** from this folder into that AVR folder (so the file sits next to `platform.txt`).
 
 ### 2. Clear the build cache and recompile
@@ -45,6 +51,76 @@ With CDC disabled, the board no longer appears as a serial port. To upload:
 
 1. Start upload from the IDE.
 2. When it says “Uploading…”, **press the reset button** on the 4dapter PCB. The board enters the bootloader and the upload completes.
+
+---
+
+## Windows: only 3 controllers visible (same firmware shows 4 on Mac/Linux)
+
+If the **same 4dapter hardware** (with 4-endpoint firmware already flashed) shows **4 controller endpoints on macOS or Linux** but only **3 on Windows**, this appears to be a **Windows limitation**, not a firmware bug.
+
+The device correctly reports 4 HID interfaces and 4 endpoints (verified with USBView: `bNumInterfaces = 4`, `wTotalLength` validated, all 4 interface and endpoint descriptors present). Windows’ USB composite parent driver (Usbccgp.sys) and HID stack only create 3 child devices for the 4 interfaces. IADs were tried but reverted—`bInterfaceCount=1` is invalid per USB spec and did not resolve the issue. The firmware uses plain interface descriptors and is spec-compliant.
+
+**Things to try on Windows (may or may not help):**
+
+1. **Device Manager** — Expand **Human Interface Devices** and **Universal Serial Bus devices**. Check how many 4dapter entries appear and whether any show a yellow warning.
+2. **USB port** — Plug directly into a **motherboard USB port** (not a hub).
+3. **Driver** — If an interface appears under **Other devices** or with a warning, try **Update driver** → **Let me pick** → **HID-compliant game controller** or **USB Input Device**.
+4. **Verify descriptor** — Use [USBView](https://learn.microsoft.com/en-us/windows-hardware/drivers/usbcon/usbview-example) or [USB Device Tree Viewer](https://www.uwe-sieber.de/usbtreeview.html). If `bNumInterfaces = 4` and all 4 interfaces/endpoints are present with no errors, the firmware is correct; the limitation is in Windows’ enumeration.
+
+### Browser (Gamepad API)
+
+In browser gamepad testers (e.g. [Hardware Tester](https://hardwaretester.com/gamepad)) using the Gamepad API:
+
+- **Chrome on macOS:** Only **1** controller may appear. The 4dapter is one USB composite device; Chrome on Mac often exposes a single gamepad slot per device, so only one of the four ports is visible.
+- **Chrome on Windows:** **3** controllers typically appear, matching the 3 HID interfaces that Windows enumerates for this device.
+
+This is browser/OS behavior, not a firmware bug. Click on the page (user gesture) and press a button on a connected port so the browser can detect the controller.
+
+### Custom descriptor with IADs (reference)
+
+IADs group **two or more** interfaces into one function; `bInterfaceCount` must be &gt; 1 per USB spec. With one interface per gamepad, IAD cannot be used correctly—each IAD would need `bInterfaceCount=1`, which USBView flags as an error. This section documents the format for reference only. Each interface remains **HID** (`bInterfaceClass = 0x03`). Each interface keeps `bInterfaceClass = 0x03` (HID); the IAD is an extra descriptor that *precedes* each interface and tells the host “the following interface(s) form one function.” That helps Windows’ composite driver create one PDO per gamepad. The host still loads the standard HID driver for each interface; games and apps still see four HID game controllers.
+
+**Current layout (no IAD):**  
+For each of the four gamepads, the configuration descriptor contains:
+
+1. **Interface descriptor** (9 bytes) — `bInterfaceClass = 0x03` (HID), one interface, one endpoint.
+2. **HID descriptor** (class-specific) — report descriptor length, etc.
+3. **Endpoint descriptor** (7 bytes) — interrupt IN.
+
+So today: `[Interface][HID][Endpoint]` × 4. No IAD.
+
+**With IAD (custom descriptor):**  
+Before each of those blocks you prepend an **IAD** (8 bytes) that describes “one function = one HID interface”:
+
+| Offset | Field             | Value (per gamepad) | Meaning                          |
+|--------|-------------------|----------------------|----------------------------------|
+| 0      | bLength           | 8                    | IAD size                         |
+| 1      | bDescriptorType   | 0x0B                 | INTERFACE_ASSOCIATION            |
+| 2      | bFirstInterface   | 0, 1, 2, or 3        | Interface number for this pad    |
+| 3      | bInterfaceCount   | 1                    | One interface in this function   |
+| 4      | bFunctionClass    | 0x03                 | HID                              |
+| 5      | bFunctionSubClass | 0x00                 | No subclass                      |
+| 6      | bFunctionProtocol | 0x00                 | No protocol                       |
+| 7      | iFunction         | 0                    | No string (or index if you add one) |
+
+So each gamepad’s block becomes: **`[IAD][Interface][HID][Endpoint]`**. The Interface descriptor is unchanged: still class 0x03 (HID), so the device still reports as a HID device. Only the configuration descriptor gains four 8-byte IADs; the rest (HID report descriptor, endpoints, behavior) stays the same.
+
+**Example IAD bytes for interface 0 (NES):**  
+`08 0B 00 01 03 00 00 00`
+
+- `08` = length 8  
+- `0B` = IAD  
+- `00` = bFirstInterface 0  
+- `01` = bInterfaceCount 1  
+- `03 00 00` = HID, no subclass, no protocol  
+- `00` = iFunction 0  
+
+For interfaces 1–3 you’d use `08 0B 01 01 03 00 00 00`, `08 0B 02 01 03 00 00 00`, `08 0B 03 01 03 00 00 00`.
+
+**Optional device descriptor change:**  
+Some hosts expect composite devices that use IADs to use device class **EFh** (Miscellaneous), subclass **02h** (Common Class), protocol **01h** (Interface Association). That is a device-level hint that IADs are present; the interfaces remain HID (0x03). If you implement a fully custom descriptor set, you can set `bDeviceClass=0x00` (composite) as today, or `0xEF/0x02/0x01` if you want to follow that convention.
+
+**Summary:** A custom descriptor that adds IADs would still report four HID interfaces; only the configuration descriptor layout changes. The device would still be a standard HID gamepad device to the host and to games.
 
 ---
 
