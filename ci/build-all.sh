@@ -43,7 +43,7 @@ mkdir -p build dist
 rm -f dist/*.hex
 
 build_hid() {
-  local outfile="$1" defines="$2"
+  local outfile="$1" defines="$2" product_name="$3"
   echo "==> Building $outfile"
   arduino-cli compile \
     --fqbn arduino:avr:leonardo \
@@ -51,16 +51,22 @@ build_hid() {
     --library ./lib/4dapterHID \
     --build-property "compiler.c.extra_flags=${defines}" \
     --build-property "compiler.cpp.extra_flags=${defines}" \
+    --build-property "build.usb_product=\"${product_name}\"" \
     --clean \
     --output-dir "build/${outfile}" \
     4dapter_FW-HID
   cp "build/${outfile}/4dapter_FW-HID.ino.hex" "dist/${outfile}.hex"
 }
 
-build_hid "4dapter-hid"        "-DHID_LAYOUT=HID_LAYOUT_TRIPLE"
-build_hid "4dapter-hid-alt"    "-DHID_LAYOUT=HID_LAYOUT_TRIPLE_ALT"
-build_hid "4dapter-hid-single" "-DHID_LAYOUT=HID_LAYOUT_SINGLE"
-build_hid "4dapter-hid-4p"     "-DHID_LAYOUT=HID_LAYOUT_QUAD -DCDC_DISABLED"
+# Each layout gets its own USB product name (instead of all four sharing the
+# stock core's generic "Arduino Leonardo") so they're distinguishable in the
+# OS device list / WebHID inspector without having to test behavior first —
+# exactly the ambiguity that made diagnosing the XInput build's identity
+# tricky before its product name was fixed.
+build_hid "4dapter-hid"        "-DHID_LAYOUT=HID_LAYOUT_TRIPLE"            "4DAPTER HID"
+build_hid "4dapter-hid-alt"    "-DHID_LAYOUT=HID_LAYOUT_TRIPLE_ALT"        "4DAPTER HID-ALT"
+build_hid "4dapter-hid-single" "-DHID_LAYOUT=HID_LAYOUT_SINGLE"            "4DAPTER HID-Single"
+build_hid "4dapter-hid-4p"     "-DHID_LAYOUT=HID_LAYOUT_QUAD -DCDC_DISABLED" "4DAPTER HID-4P"
 
 echo "==> Building 4dapter-switch"
 arduino-cli compile --fqbn Arduino-LUFA:avr:leonardo --library ./lib/4dapterCore \
@@ -71,14 +77,14 @@ cp build/4dapter-switch/4dapter_FW-Switch.ino.hex dist/4dapter-switch.hex
 echo "==> Building 4dapter-xinput"
 # The xinput:avr core's boards.txt hardcodes build.usb_product="Arduino Leonardo"
 # (it's a repurposed stock Leonardo board profile) — override it so the device
-# reports as "4dapter" instead of "Arduino Leonardo" while still spoofing an
-# Xbox 360 controller's VID/PID (0x045E/0x028E, untouched) for XInput compatibility.
-# Unlike HID_LAYOUT above, this is safe to pass via --build-property directly
-# since build.usb_product is its own property, not build.extra_flags itself —
-# but it still requires --clean, since arduino-cli's cache doesn't reliably
-# notice this property changed either.
+# reports as "4DAPTER XInput" instead of "Arduino Leonardo" while still
+# spoofing an Xbox 360 controller's VID/PID (0x045E/0x028E, untouched) for
+# XInput compatibility. Unlike HID_LAYOUT above, this is safe to pass via
+# --build-property directly since build.usb_product is its own property, not
+# build.extra_flags itself — but it still requires --clean, since arduino-cli's
+# cache doesn't reliably notice this property changed either.
 arduino-cli compile --fqbn xinput:avr:leonardo --library ./lib/4dapterCore \
-  --build-property 'build.usb_product="4dapter"' \
+  --build-property 'build.usb_product="4DAPTER XInput"' \
   --clean \
   --output-dir build/4dapter-xinput 4dapter_FW-XInput
 cp build/4dapter-xinput/4dapter_FW-XInput.ino.hex dist/4dapter-xinput.hex
