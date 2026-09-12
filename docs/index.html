@@ -47,14 +47,18 @@
     <p class="muted">
       Your browser will ask you to pick a device again — the board now shows up
       differently because it's in bootloader mode. Look for a second
-      Arduino-related entry in the list.
+      Arduino-related entry in the list. <strong>Flashing starts immediately</strong>
+      once you pick it — the bootloader only waits a few seconds before giving up,
+      so there's no separate "ready when you are" step.
     </p>
-    <button id="connect-bootloader-button" data-requires-serial>Select device</button>
+    <button id="connect-bootloader-button" data-requires-serial>Select device &amp; flash</button>
   </section>
 
   <section class="panel step">
-    <h2><span class="step-number">4</span> Flash</h2>
-    <button id="flash-button" disabled>Flash firmware</button>
+    <h2><span class="step-number">4</span> Flashing</h2>
+    <p class="muted">Progress shows here once step 3 selects a device. You can also
+      click below to retry without reselecting the device, if needed.</p>
+    <button id="flash-button" disabled>Flash again</button>
     <progress id="progress-bar" value="0" max="100" hidden></progress>
     <div id="status" class="status"></div>
     <div id="log"></div>

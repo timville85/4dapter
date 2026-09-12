@@ -64,6 +64,7 @@ const el = (id) => document.getElementById(id);
 const state = {
   variant: VARIANTS[0],
   hexBytes: null,
+  usingLocalFile: false,
   releaseTag: null,
   normalPort: null,
   bootloaderPort: null,
@@ -112,10 +113,27 @@ function renderVariantDetail() {
   el('manualreset-hint').hidden = state.variant.autoReset;
   // A new variant invalidates anything already fetched/flashed so far.
   state.hexBytes = null;
+  state.usingLocalFile = false;
+  // Fetch it now, in the background, so it's already in memory by the time
+  // the bootloader connects — the bootloader only waits a few seconds before
+  // giving up and running the old firmware, so there's no time to spend on a
+  // network round-trip once flashing is supposed to start.
+  prefetchFirmware();
+}
+
+function prefetchFirmware() {
+  ensureFirmwareFetched().catch((e) => {
+    logLine(`Note: couldn't pre-fetch firmware yet (${e.message})`);
+  });
 }
 
 async function ensureFirmwareFetched() {
   if (state.hexBytes) return;
+  // Snapshot which variant this fetch is for, and bail out quietly if the
+  // user switches variants or loads a local file while it's in flight,
+  // rather than clobbering whatever they picked instead.
+  const requestedVariant = state.variant;
+  const stillWanted = () => state.variant === requestedVariant && !state.usingLocalFile;
 
   setStatus('Looking up the latest release...', 'busy');
   const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
@@ -126,29 +144,32 @@ async function ensureFirmwareFetched() {
     );
   }
   const release = await res.json();
-  state.releaseTag = release.tag_name;
+  if (!stillWanted()) return;
 
-  const asset = (release.assets || []).find((a) => a.name === state.variant.file);
+  const asset = (release.assets || []).find((a) => a.name === requestedVariant.file);
   if (!asset) {
     throw new Error(
-      `Release ${release.tag_name} doesn't include ${state.variant.file}. ` +
+      `Release ${release.tag_name} doesn't include ${requestedVariant.file}. ` +
         `Use "Load a .hex file instead" below if you have one locally.`
     );
   }
 
-  setStatus(`Downloading ${state.variant.file} from release ${release.tag_name}...`, 'busy');
+  setStatus(`Downloading ${requestedVariant.file} from release ${release.tag_name}...`, 'busy');
   const hexRes = await fetch(asset.browser_download_url);
   if (!hexRes.ok) {
-    throw new Error(`Failed to download ${state.variant.file} (HTTP ${hexRes.status})`);
+    throw new Error(`Failed to download ${requestedVariant.file} (HTTP ${hexRes.status})`);
   }
   const hexText = await hexRes.text();
+  if (!stillWanted()) return;
+  state.releaseTag = release.tag_name;
   state.hexBytes = parseIntelHex(hexText);
-  setStatus(`Ready: ${state.variant.file} from release ${release.tag_name} (${state.hexBytes.length} bytes).`, 'ok');
+  setStatus(`Ready: ${requestedVariant.file} from release ${release.tag_name} (${state.hexBytes.length} bytes).`, 'ok');
 }
 
 async function loadLocalHexFile(file) {
   const hexText = await file.text();
   state.hexBytes = parseIntelHex(hexText);
+  state.usingLocalFile = true;
   state.releaseTag = `local file: ${file.name}`;
   setStatus(`Ready: ${file.name} (${state.hexBytes.length} bytes).`, 'ok');
 }
@@ -183,13 +204,17 @@ async function connectBootloaderPort() {
   setStatus('Requesting the bootloader-mode device...', 'busy');
   try {
     state.bootloaderPort = await navigator.serial.requestPort();
-    logLine('Selected a device — ready to flash.');
-    setStatus('Connected. Click "Flash firmware" in step 4 to continue.', 'ok');
-    el('flash-button').disabled = false;
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
+    return;
   }
+  // Flash immediately — the bootloader only waits a few seconds for activity
+  // before giving up and running the old firmware, so there's no "click
+  // Flash when you're ready" step here.
+  logLine('Selected a device — flashing now.');
+  el('flash-button').disabled = false;
+  await doFlash();
 }
 
 async function doFlash() {
@@ -198,6 +223,9 @@ async function doFlash() {
   progressEl.hidden = false;
 
   try {
+    // Normally already resolved by the background prefetch kicked off when
+    // the variant was chosen; this only actually waits if that hasn't
+    // finished yet (e.g. a slow connection) or failed and needs retrying.
     await ensureFirmwareFetched();
   } catch (e) {
     setStatus(e.message, 'error');
