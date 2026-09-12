@@ -280,6 +280,15 @@ export async function probeBootloader(port, { log = () => {}, timeoutMs = 700 } 
  * 4-Player HID build) or a non-Arduino-core USB stack (Switch/XInput) won't
  * show up as a serial port at all, so this step doesn't apply to them; the
  * user has to press the board's physical reset button instead.
+ *
+ * Deliberately does NOT wait around afterward for the board to re-enumerate —
+ * Caterina only stays in the bootloader for a few seconds before giving up
+ * and running the old firmware again, so every millisecond here comes out of
+ * that window. The caller should get a device picker in front of the user
+ * immediately; the board can finish re-enumerating while that's already open
+ * (confirmed on real hardware: the picker list updates live as the old
+ * device disappears and the bootloader one appears a couple of seconds
+ * later), rather than making the user wait through a fixed delay first.
  */
 export async function touchReset1200(port, { log = () => {} } = {}) {
   log('Touching port at 1200 baud to request a bootloader reset...');
@@ -291,8 +300,7 @@ export async function touchReset1200(port, { log = () => {} } = {}) {
   }
   await new Promise((r) => setTimeout(r, 250));
   await port.close();
-  log('Port closed. Waiting for the board to re-enumerate in bootloader mode...');
-  await new Promise((r) => setTimeout(r, 2000));
+  log('Port closed — the board should be resetting now.');
 }
 
 /**

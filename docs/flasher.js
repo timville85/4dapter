@@ -224,37 +224,42 @@ async function connectAndFlash() {
     return;
   }
 
-  // Try to reconnect automatically — this succeeds without any extra click
-  // if the browser still considers this the same user gesture, or if this
-  // board's bootloader identity was already granted access on an earlier
-  // flash. If neither is true, the browser refuses to show a picker without
-  // a fresh click, so we surface exactly one fallback button rather than
-  // silently getting stuck.
-  try {
-    state.bootloaderPort = await navigator.serial.requestPort();
-  } catch (e) {
-    logLine(`Couldn't automatically reconnect (${e.message}).`);
-    setStatus('Board reset. Click below to select it and finish flashing.', '');
-    el('manual-bootloader-button').hidden = false;
-    return;
-  }
-
-  logLine('Reconnected — flashing now.');
-  el('flash-button').disabled = false;
-  await doFlash();
+  // Chrome will not show a device picker a second time from the same click,
+  // no matter how soon after the first we ask — confirmed on real hardware,
+  // it fails instantly rather than after any delay. So there's no point
+  // attempting that silently; go straight to asking for one more click,
+  // as fast as possible, since the bootloader only waits a few seconds.
+  // The picker that click opens can sit there and update live as the board
+  // finishes resetting — no need to wait for that first.
+  setStatus('Board resetting — click below now to select it. You have a few seconds before it reverts.', 'busy');
+  el('manual-bootloader-button').hidden = false;
+  el('manual-bootloader-button').focus();
 }
 
 async function connectBootloaderPortManually() {
   setStatus('Requesting the bootloader-mode device...', 'busy');
+  let port;
   try {
-    state.bootloaderPort = await navigator.serial.requestPort();
+    port = await navigator.serial.requestPort();
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
     return;
   }
+
+  // Guard against picking a device that isn't actually the bootloader yet —
+  // e.g. clicking too fast, or accidentally selecting the old normal-mode
+  // entry before it disappeared — with a clear message instead of a
+  // confusing low-level protocol timeout later.
+  const ready = await probeBootloader(port, { log: logLine });
+  if (!ready) {
+    setStatus("That doesn't look like the bootloader yet — click the button again and pick the newly-appeared device.", 'error');
+    return;
+  }
+
   el('manual-bootloader-button').hidden = true;
   logLine('Selected a device — flashing now.');
+  state.bootloaderPort = port;
   el('flash-button').disabled = false;
   await doFlash();
 }
