@@ -25,6 +25,11 @@
     <select id="variant-select"></select>
     <p class="muted" id="variant-detail"></p>
     <p class="note" id="variant-note" hidden></p>
+    <p class="hint">
+      Don't see a release build, or want to test a firmware you built yourself?
+      <label for="local-hex-input" style="cursor:pointer; color: var(--accent);">Load a .hex file instead</label>.
+      <input type="file" id="local-hex-input" accept=".hex" hidden>
+    </p>
   </section>
 
   <section class="panel step">
@@ -67,14 +72,6 @@
     <p class="muted">
       Once flashing finishes above, your 4dapter is running the new firmware.
       Unplug and replug it if it doesn't show up right away.
-    </p>
-  </section>
-
-  <section class="panel">
-    <p class="hint">
-      Don't see a release build, or want to test a firmware you built yourself?
-      <label for="local-hex-input" style="cursor:pointer; color: var(--accent);">Load a .hex file instead</label>.
-      <input type="file" id="local-hex-input" accept=".hex" hidden>
     </p>
   </section>
 
