@@ -35,16 +35,9 @@
   <section class="panel step">
     <h2><span class="step-number">2</span> Connect</h2>
     <p class="muted">
-      Click below and pick your 4dapter — we'll figure out whether it needs
-      resetting into bootloader mode first. If it does and this board has never
-      been flashed here before, your browser will need <strong>one more click</strong>
-      to pick it again afterward (browsers only allow a device picker to open once
-      per click, so this can't be automated away on the first try) — a button for
-      that will appear right here. Click it fast: the bootloader only waits a few
-      seconds before giving up, and the device may take a couple of those seconds
-      to reappear in the picker under a different name than before. Once a board's
-      been through this once, later flashes should reconnect automatically with no
-      extra click.
+      Click below and pick your 4dapter. If a second button appears here right
+      after, click it fast — it means your browser needs one more click to
+      finish connecting, and the board only waits a few seconds before giving up.
     </p>
     <p class="muted" id="manualreset-hint">
       This firmware doesn't show up as a serial port on its own — press and release
@@ -55,6 +48,19 @@
     <button id="manual-bootloader-button" class="secondary" data-requires-serial hidden>
       Board resetting — click now to select it
     </button>
+
+    <details class="details-hint">
+      <summary>Why does it sometimes need a second click?</summary>
+      <p class="muted">
+        Flashing needs the board in a special "bootloader" mode. If it isn't
+        already, we reset it automatically — but browsers only allow a device
+        picker to open once per click, so picking the board again afterward
+        needs a fresh click the first time you flash it here. The device may
+        also take a couple of seconds to reappear in the picker under a
+        different name than before. Once a board's been through this once,
+        later flashes should reconnect automatically with no extra click.
+      </p>
+    </details>
   </section>
 
   <section class="panel step">
@@ -76,31 +82,15 @@
   </section>
 
   <section class="panel step">
-    <h2><span class="step-number">5</span> Test the device</h2>
-    <p class="muted">
-      Unplug and replug your 4dapter, then use either check below — no need to
-      leave this page for a separate gamepad tester.
-    </p>
-
-    <h3>Gamepad API (what a game or emulator sees)</h3>
-    <p class="muted">Press any button on the device to make the browser notice it.</p>
-    <button id="gamepad-watch-button">Start watching for a gamepad</button>
-    <div id="gamepad-readout" class="mono-panel"></div>
-
-    <h3>WebHID (raw USB identity)</h3>
-    <p class="muted">
-      Shows the exact vendor/product ID and HID report structure the device
-      reports — useful even when it isn't being recognized as a gamepad at
-      all, since it shows whatever's actually there instead of just "nothing
-      detected."
-    </p>
-    <button id="webhid-inspect-button" data-requires-webhid>Inspect via WebHID</button>
-    <div id="webhid-readout" class="mono-panel"></div>
+    <h2><span class="step-number">5</span> Test it</h2>
+    <p class="muted">Press any button on your 4dapter to confirm it's working.</p>
+    <div id="quick-test-status" class="status"></div>
   </section>
 
   <footer>
     <a href="https://github.com/timville85/4dapter">4dapter on GitHub</a> ·
-    firmware source and build instructions in the repo
+    firmware source and build instructions in the repo ·
+    <a href="diagnostics.html">Advanced diagnostics</a>
   </footer>
 </main>
 <script type="module" src="flasher.js"></script>

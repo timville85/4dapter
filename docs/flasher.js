@@ -361,137 +361,44 @@ async function doFlash() {
 }
 
 // ---------------------------------------------------------------------------
-// Step 5: testing the flashed device. Two independent checks, since they
-// answer different questions: the Gamepad API shows what a game/emulator
-// would actually see (only recognizes known controller descriptors, e.g. the
-// XInput build's Xbox 360 spoof at VID 0x045E / PID 0x028E), while WebHID
-// shows the raw USB identity and report structure regardless of whether
-// Chrome's gamepad code recognizes it as a "gamepad" at all — useful for
-// telling "not enumerating as a USB device" apart from "enumerating, but not
-// as what we expected."
+// Step 5: a simple, friendly "is it working" check — just watches for any
+// button press or stick movement on any connected gamepad via the Gamepad
+// API and reports back in plain language. No VID/PID or raw report data;
+// that level of detail lives in diagnostics.html for when we need to
+// actually troubleshoot something, not in the everyday flashing flow.
 // ---------------------------------------------------------------------------
 
-let gamepadWatchRafId = null;
-
-function addMonoEntry(panelEl, lines) {
-  const entry = document.createElement('div');
-  entry.className = 'entry';
-  for (const line of lines) {
-    const row = document.createElement('div');
-    if (Array.isArray(line)) {
-      const strong = document.createElement('strong');
-      strong.textContent = line[0];
-      row.appendChild(strong);
-      row.appendChild(document.createTextNode(line[1]));
-    } else {
-      row.textContent = line;
-    }
-    entry.appendChild(row);
-  }
-  panelEl.appendChild(entry);
-  return entry;
-}
-
-function renderGamepadReadout() {
-  const panelEl = el('gamepad-readout');
-  panelEl.innerHTML = '';
-  const pads = navigator.getGamepads ? navigator.getGamepads() : [];
-  const connected = Array.from(pads).filter(Boolean);
-  if (connected.length === 0) {
-    addMonoEntry(panelEl, ['No gamepad detected yet.']);
-    return;
-  }
-  for (const pad of connected) {
-    const buttons = pad.buttons.map((b, i) => `${i}:${b.pressed ? '●' : '○'}`).join(' ');
-    const axes = pad.axes.map((a, i) => `${i}:${a.toFixed(2)}`).join(' ');
-    addMonoEntry(panelEl, [
-      ['id: ', pad.id],
-      `index ${pad.index} · mapping: ${pad.mapping || '(none)'}`,
-      `Buttons: ${buttons}`,
-      `Axes: ${axes}`,
-    ]);
-  }
-}
-
-function toggleGamepadWatch() {
-  const button = el('gamepad-watch-button');
-  if (gamepadWatchRafId) {
-    cancelAnimationFrame(gamepadWatchRafId);
-    gamepadWatchRafId = null;
-    button.textContent = 'Start watching for a gamepad';
-    return;
-  }
-  button.textContent = 'Stop watching';
+function watchForAnyInput() {
+  const statusEl = el('quick-test-status');
   const tick = () => {
-    renderGamepadReadout();
-    gamepadWatchRafId = requestAnimationFrame(tick);
+    const pads = navigator.getGamepads ? navigator.getGamepads() : [];
+    const connected = Array.from(pads).filter(Boolean);
+    const anyInput = connected.some(
+      (pad) => pad.buttons.some((b) => b.pressed) || pad.axes.some((a) => Math.abs(a) > 0.3)
+    );
+    if (anyInput) {
+      statusEl.textContent = '✅ Got it — your 4dapter is responding!';
+      statusEl.className = 'status status--ok';
+    } else if (connected.length > 0) {
+      statusEl.textContent = 'Device detected — press any button to confirm it responds.';
+      statusEl.className = 'status';
+    } else {
+      statusEl.textContent = 'Plug in your 4dapter and press a button.';
+      statusEl.className = 'status';
+    }
+    requestAnimationFrame(tick);
   };
   tick();
-}
-
-function checkWebHidSupport() {
-  if (!('hid' in navigator)) {
-    document.querySelectorAll('button[data-requires-webhid]').forEach((b) => (b.disabled = true));
-    return false;
-  }
-  return true;
-}
-
-async function inspectViaWebHid() {
-  const panelEl = el('webhid-readout');
-  let devices;
-  try {
-    // Deliberately unfiltered: the whole point is to see whatever the
-    // device actually reports, even if it's not the VID/PID we expected.
-    devices = await navigator.hid.requestDevice({ filters: [] });
-  } catch (e) {
-    addMonoEntry(panelEl, [`Error: ${e.message}`]);
-    return;
-  }
-  if (!devices || devices.length === 0) {
-    addMonoEntry(panelEl, ['No device selected.']);
-    return;
-  }
-
-  const device = devices[0];
-  try {
-    await device.open();
-    const lines = [
-      ['Vendor ID: ', `0x${device.vendorId.toString(16).padStart(4, '0')}`],
-      ['Product ID: ', `0x${device.productId.toString(16).padStart(4, '0')}`],
-      ['Product name: ', device.productName || '(none reported)'],
-    ];
-    for (const collection of device.collections) {
-      lines.push(`Collection — usage page 0x${collection.usagePage.toString(16)}, usage 0x${collection.usage.toString(16)}`);
-      for (const report of collection.inputReports) {
-        lines.push(`  Input report ${report.reportId ?? '(none)'}: ${report.items.length} item(s)`);
-      }
-      for (const report of collection.outputReports) {
-        lines.push(`  Output report ${report.reportId ?? '(none)'}: ${report.items.length} item(s)`);
-      }
-    }
-    addMonoEntry(panelEl, lines);
-  } catch (e) {
-    addMonoEntry(panelEl, [`Error reading device info: ${e.message}`]);
-  } finally {
-    try {
-      await device.close();
-    } catch {
-      // Nothing useful to do if closing fails.
-    }
-  }
 }
 
 function init() {
   renderVariantPicker();
   const supported = checkWebSerialSupport();
-  checkWebHidSupport();
+  watchForAnyInput();
 
   el('connect-button').addEventListener('click', connectAndFlash);
   el('manual-bootloader-button').addEventListener('click', connectBootloaderPortManually);
   el('flash-button').addEventListener('click', doFlash);
-  el('gamepad-watch-button').addEventListener('click', toggleGamepadWatch);
-  el('webhid-inspect-button').addEventListener('click', inspectViaWebHid);
 
   el('local-hex-input').addEventListener('change', async (evt) => {
     const file = evt.target.files[0];

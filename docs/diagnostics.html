@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4dapter Diagnostics</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <header>
+    <h1>4dapter Diagnostics</h1>
+    <p>Raw device inspection tools for troubleshooting — not needed for normal flashing.
+      Head back to the <a href="index.html">flasher</a> for that.</p>
+  </header>
+
+  <div id="unsupported-banner" class="banner" hidden>
+    <strong>Your browser doesn't support this.</strong>
+    These tools need Chrome or Edge on desktop.
+  </div>
+
+  <section class="panel step">
+    <h2>Gamepad API</h2>
+    <p class="muted">
+      What a game or emulator actually sees — Chrome only recognizes known
+      controller descriptors, so this can show "no gamepad" even when the
+      device is enumerating correctly. Press any button on the device to make
+      the browser notice it.
+    </p>
+    <button id="gamepad-watch-button">Start watching for a gamepad</button>
+    <div id="gamepad-readout" class="mono-panel"></div>
+  </section>
+
+  <section class="panel step">
+    <h2>WebHID</h2>
+    <p class="muted">
+      Shows the exact vendor/product ID and HID report structure the device
+      reports, regardless of whether Chrome's gamepad code recognizes it as a
+      gamepad at all — the device picker is deliberately unfiltered so you see
+      whatever's actually there, even if it's not what you expected.
+    </p>
+    <button id="webhid-inspect-button" data-requires-webhid>Inspect via WebHID</button>
+    <div id="webhid-readout" class="mono-panel"></div>
+  </section>
+
+  <footer>
+    <a href="https://github.com/timville85/4dapter">4dapter on GitHub</a> ·
+    <a href="index.html">Back to the flasher</a>
+  </footer>
+</main>
+<script type="module" src="diagnostics.js"></script>
+</body>
+</html>

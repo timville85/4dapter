@@ -208,6 +208,20 @@ progress {
   color: var(--text);
 }
 
+.details-hint {
+  margin-top: 12px;
+  font-size: 0.85rem;
+}
+
+.details-hint summary {
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.details-hint p {
+  margin: 8px 0 0;
+}
+
 .hint {
   margin-top: 10px;
   font-size: 0.85rem;
