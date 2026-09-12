@@ -75,6 +75,29 @@
     </p>
   </section>
 
+  <section class="panel step">
+    <h2><span class="step-number">5</span> Test the device</h2>
+    <p class="muted">
+      Unplug and replug your 4dapter, then use either check below — no need to
+      leave this page for a separate gamepad tester.
+    </p>
+
+    <h3>Gamepad API (what a game or emulator sees)</h3>
+    <p class="muted">Press any button on the device to make the browser notice it.</p>
+    <button id="gamepad-watch-button">Start watching for a gamepad</button>
+    <div id="gamepad-readout" class="mono-panel"></div>
+
+    <h3>WebHID (raw USB identity)</h3>
+    <p class="muted">
+      Shows the exact vendor/product ID and HID report structure the device
+      reports — useful even when it isn't being recognized as a gamepad at
+      all, since it shows whatever's actually there instead of just "nothing
+      detected."
+    </p>
+    <button id="webhid-inspect-button" data-requires-webhid>Inspect via WebHID</button>
+    <div id="webhid-readout" class="mono-panel"></div>
+  </section>
+
   <footer>
     <a href="https://github.com/timville85/4dapter">4dapter on GitHub</a> ·
     firmware source and build instructions in the repo

@@ -67,6 +67,12 @@ header p {
   gap: 8px;
 }
 
+.step h3 {
+  margin: 18px 0 6px;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
 .step h2 .step-number {
   display: inline-flex;
   align-items: center;
@@ -170,7 +176,8 @@ progress {
   accent-color: var(--accent);
 }
 
-#log {
+#log,
+.mono-panel {
   margin-top: 12px;
   max-height: 180px;
   overflow-y: auto;
@@ -181,6 +188,24 @@ progress {
   font-family: ui-monospace, Menlo, Consolas, monospace;
   font-size: 0.78rem;
   color: var(--muted);
+}
+
+.mono-panel:empty::before {
+  content: '(nothing yet)';
+  opacity: 0.6;
+}
+
+.mono-panel .entry {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.mono-panel .entry:last-child {
+  border-bottom: none;
+}
+
+.mono-panel .entry strong {
+  color: var(--text);
 }
 
 .hint {
