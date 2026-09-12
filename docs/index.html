@@ -28,36 +28,28 @@
   </section>
 
   <section class="panel step">
-    <h2><span class="step-number">2</span> Connect your 4dapter</h2>
-    <p class="muted" id="autoreset-hint">
-      If your 4dapter currently shows up as a serial/COM port, click below and we'll
-      reset it into programming mode automatically.
-    </p>
-    <button id="connect-normal-button" data-requires-serial>Connect &amp; auto-reset</button>
-
-    <p class="muted" id="manualreset-hint">
-      This firmware doesn't support auto-reset. Press and release the small reset
-      button on the 4dapter PCB now, then continue.
-    </p>
-    <button id="skip-to-manual-button" class="secondary">I've reset it manually</button>
-  </section>
-
-  <section class="panel step">
-    <h2><span class="step-number">3</span> Select the bootloader device</h2>
+    <h2><span class="step-number">2</span> Connect</h2>
     <p class="muted">
-      Your browser will ask you to pick a device again — the board now shows up
-      differently because it's in bootloader mode. Look for a second
-      Arduino-related entry in the list. <strong>Flashing starts immediately</strong>
-      once you pick it — the bootloader only waits a few seconds before giving up,
-      so there's no separate "ready when you are" step.
+      Just click below and pick your 4dapter — we'll figure out whether it needs
+      resetting into bootloader mode first and handle that automatically. Flashing
+      starts as soon as we're talking to the bootloader, since it only waits a few
+      seconds for activity before giving up.
     </p>
-    <button id="connect-bootloader-button" data-requires-serial>Select device &amp; flash</button>
+    <p class="muted" id="manualreset-hint">
+      This firmware doesn't show up as a serial port on its own — press and release
+      the small reset button on the 4dapter PCB first, then click below.
+    </p>
+    <button id="connect-button" data-requires-serial>Connect</button>
+
+    <button id="manual-bootloader-button" class="secondary" data-requires-serial hidden>
+      Board reset — click to select it and flash
+    </button>
   </section>
 
   <section class="panel step">
-    <h2><span class="step-number">4</span> Flashing</h2>
-    <p class="muted">Progress shows here once step 3 selects a device. You can also
-      click below to retry without reselecting the device, if needed.</p>
+    <h2><span class="step-number">3</span> Flashing</h2>
+    <p class="muted">Progress shows here once connected. You can also click below to
+      retry without reconnecting, if needed.</p>
     <button id="flash-button" disabled>Flash again</button>
     <progress id="progress-bar" value="0" max="100" hidden></progress>
     <div id="status" class="status"></div>
@@ -65,7 +57,7 @@
   </section>
 
   <section class="panel step">
-    <h2><span class="step-number">5</span> Done</h2>
+    <h2><span class="step-number">4</span> Done</h2>
     <p class="muted">
       Once flashing finishes above, your 4dapter is running the new firmware.
       Unplug and replug it if it doesn't show up right away.

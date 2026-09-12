@@ -111,9 +111,9 @@ export class Avr109Client {
   }
 
   /** 'S' — software identifier: 7 ASCII chars (Caterina replies "CATERIN"). */
-  async readSoftwareId() {
+  async readSoftwareId(timeoutMs = 3000) {
     await this._writeBytes([0x53]);
-    return new TextDecoder().decode(await this._readBytes(7));
+    return new TextDecoder().decode(await this._readBytes(7, timeoutMs));
   }
 
   /** 's' — 3-byte device signature, sent least-significant byte first. */
@@ -245,6 +245,31 @@ export function parseIntelHex(hexText) {
     if (sparse[i] !== undefined) flat[i] = sparse[i];
   }
   return flat;
+}
+
+/**
+ * Checks whether |port| is already talking the avr109 protocol (i.e. the
+ * board is already in bootloader mode — either because the user pressed the
+ * physical reset button before connecting, or because a previous step here
+ * already reset it) by sending the 'S' software-id command and seeing if a
+ * well-formed reply comes back within a short timeout. Never throws — a
+ * negative result (timeout, garbage, or a port that fails to open) just means
+ * "no, this isn't a bootloader," which is exactly what a normal running
+ * sketch's serial port looks like, since none of the 4dapter sketches
+ * implement anything on Serial.
+ */
+export async function probeBootloader(port, { log = () => {}, timeoutMs = 700 } = {}) {
+  const client = new Avr109Client(port, { log });
+  try {
+    await client.open();
+    await client.readSoftwareId(timeoutMs);
+    return true;
+  } catch (e) {
+    log(`Not a bootloader (${e.message}).`);
+    return false;
+  } finally {
+    await client.close();
+  }
 }
 
 /**

@@ -7,7 +7,7 @@
  * static page.
  */
 
-import { parseIntelHex, touchReset1200, flashFirmware } from './avr109.js';
+import { parseIntelHex, touchReset1200, flashFirmware, probeBootloader } from './avr109.js';
 
 const GITHUB_REPO = 'timville85/4dapter';
 
@@ -66,7 +66,6 @@ const state = {
   hexBytes: null,
   usingLocalFile: false,
   releaseTag: null,
-  normalPort: null,
   bootloaderPort: null,
 };
 
@@ -109,7 +108,6 @@ function renderVariantDetail() {
   } else {
     noteEl.hidden = true;
   }
-  el('autoreset-hint').hidden = !state.variant.autoReset;
   el('manualreset-hint').hidden = state.variant.autoReset;
   // A new variant invalidates anything already fetched/flashed so far.
   state.hexBytes = null;
@@ -183,24 +181,70 @@ function checkWebSerialSupport() {
   return true;
 }
 
-async function connectNormalPort() {
-  setStatus('Requesting your 4dapter’s serial port...', 'busy');
+/**
+ * Single entry point for connecting: works whether the board is currently
+ * running normal (CDC-capable) firmware, is already sitting in bootloader
+ * mode (e.g. the user pressed reset before clicking), or is running
+ * CDC-less firmware and was just manually reset. We never ask the user which
+ * case applies — we ask for a device, then probe it with the real protocol
+ * to find out, and only fall back to a second manual pick if the browser
+ * won't let us silently reconnect after triggering a reset.
+ */
+async function connectAndFlash() {
+  el('manual-bootloader-button').hidden = true;
+
+  let port;
+  setStatus('Requesting your 4dapter...', 'busy');
   try {
-    state.normalPort = await navigator.serial.requestPort();
-    logLine('Selected the board’s normal-mode serial port.');
-    await touchReset1200(state.normalPort, { log: logLine });
-    setStatus('Board should now be in bootloader mode — select it in step 3.', 'ok');
+    port = await navigator.serial.requestPort();
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
+    return;
   }
+
+  setStatus('Checking whether it’s already in bootloader mode...', 'busy');
+  const alreadyBootloader = await probeBootloader(port, { log: logLine });
+
+  if (alreadyBootloader) {
+    logLine('Already in bootloader mode — flashing now.');
+    state.bootloaderPort = port;
+    el('flash-button').disabled = false;
+    await doFlash();
+    return;
+  }
+
+  logLine('Not a bootloader yet — this looks like the normal running firmware. Resetting it...');
+  setStatus('Resetting your board...', 'busy');
+  try {
+    await touchReset1200(port, { log: logLine });
+  } catch (e) {
+    setStatus(`Couldn't reset the board: ${e.message}`, 'error');
+    logLine(`Error: ${e.message}`);
+    return;
+  }
+
+  // Try to reconnect automatically — this succeeds without any extra click
+  // if the browser still considers this the same user gesture, or if this
+  // board's bootloader identity was already granted access on an earlier
+  // flash. If neither is true, the browser refuses to show a picker without
+  // a fresh click, so we surface exactly one fallback button rather than
+  // silently getting stuck.
+  try {
+    state.bootloaderPort = await navigator.serial.requestPort();
+  } catch (e) {
+    logLine(`Couldn't automatically reconnect (${e.message}).`);
+    setStatus('Board reset. Click below to select it and finish flashing.', '');
+    el('manual-bootloader-button').hidden = false;
+    return;
+  }
+
+  logLine('Reconnected — flashing now.');
+  el('flash-button').disabled = false;
+  await doFlash();
 }
 
-function skipToManualReset() {
-  setStatus('Press the reset button on your 4dapter now, then select it in step 3.', '');
-}
-
-async function connectBootloaderPort() {
+async function connectBootloaderPortManually() {
   setStatus('Requesting the bootloader-mode device...', 'busy');
   try {
     state.bootloaderPort = await navigator.serial.requestPort();
@@ -209,9 +253,7 @@ async function connectBootloaderPort() {
     logLine(`Error: ${e.message}`);
     return;
   }
-  // Flash immediately — the bootloader only waits a few seconds for activity
-  // before giving up and running the old firmware, so there's no "click
-  // Flash when you're ready" step here.
+  el('manual-bootloader-button').hidden = true;
   logLine('Selected a device — flashing now.');
   el('flash-button').disabled = false;
   await doFlash();
@@ -256,9 +298,8 @@ function init() {
   renderVariantPicker();
   const supported = checkWebSerialSupport();
 
-  el('connect-normal-button').addEventListener('click', connectNormalPort);
-  el('skip-to-manual-button').addEventListener('click', skipToManualReset);
-  el('connect-bootloader-button').addEventListener('click', connectBootloaderPort);
+  el('connect-button').addEventListener('click', connectAndFlash);
+  el('manual-bootloader-button').addEventListener('click', connectBootloaderPortManually);
   el('flash-button').addEventListener('click', doFlash);
 
   el('local-hex-input').addEventListener('change', async (evt) => {
