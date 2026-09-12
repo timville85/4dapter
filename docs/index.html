@@ -31,12 +31,15 @@
     <h2><span class="step-number">2</span> Connect</h2>
     <p class="muted">
       Click below and pick your 4dapter — we'll figure out whether it needs
-      resetting into bootloader mode first. If it does, your browser will need
-      <strong>one more click</strong> to pick it again afterward (browsers only allow
-      a device picker to open once per click, so this can't be automated away) —
-      a button for that will appear right here. Click it fast: the bootloader only
-      waits a few seconds before giving up, and the device may take a couple of
-      those seconds to reappear in the picker under a different name than before.
+      resetting into bootloader mode first. If it does and this board has never
+      been flashed here before, your browser will need <strong>one more click</strong>
+      to pick it again afterward (browsers only allow a device picker to open once
+      per click, so this can't be automated away on the first try) — a button for
+      that will appear right here. Click it fast: the bootloader only waits a few
+      seconds before giving up, and the device may take a couple of those seconds
+      to reappear in the picker under a different name than before. Once a board's
+      been through this once, later flashes should reconnect automatically with no
+      extra click.
     </p>
     <p class="muted" id="manualreset-hint">
       This firmware doesn't show up as a serial port on its own — press and release

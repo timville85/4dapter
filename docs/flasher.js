@@ -11,6 +11,16 @@ import { parseIntelHex, touchReset1200, flashFirmware, probeBootloader } from '.
 
 const GITHUB_REPO = 'timville85/4dapter';
 
+// Narrows the browser's device picker to Arduino-vendor USB devices, so
+// unrelated ports (Bluetooth, other USB-serial gadgets, monitor controls,
+// etc.) don't clutter the list. Confirmed on real hardware: normal-mode
+// firmware enumerates as VID 0x2341 (Arduino) PID 0x8036 ("Arduino
+// Leonardo"), and the Caterina bootloader as VID 0x2341 PID 0x0037 ("Arduino
+// Micro" — not the Leonardo bootloader ID one might expect). Filtering on
+// vendor ID only (no product ID) covers both without hardcoding product IDs
+// that might differ on a future hardware revision.
+const ARDUINO_VENDOR_FILTER = [{ usbVendorId: 0x2341 }];
+
 // Keep in sync with the filenames ci/build-all.sh produces and
 // .github/workflows/build-firmware.yml publishes as release assets.
 const VARIANTS = [
@@ -181,6 +191,39 @@ function checkWebSerialSupport() {
   return true;
 }
 
+// Holds a cleanup function for a pending navigator.serial 'connect' listener
+// set up by listenForAutoReconnect(), if one is currently active.
+let autoReconnectCleanup = null;
+
+function stopListeningForAutoReconnect() {
+  if (autoReconnectCleanup) {
+    autoReconnectCleanup();
+    autoReconnectCleanup = null;
+  }
+}
+
+/**
+ * Listens for navigator.serial's 'connect' event, which fires WITHOUT any
+ * user gesture when a device the user has granted access to before
+ * reconnects — this is the one legitimate way to reconnect a device
+ * automatically after it changes USB identity on reset, since Chrome flatly
+ * refuses to show a second requestPort() picker from the same click no
+ * matter how that's timed (confirmed on real hardware; it's a "one chooser
+ * per gesture" rule, not a race against a delay). Only fires at all if this
+ * exact bootloader identity was already authorized on an earlier flash in
+ * this browser — otherwise it never fires and the manual button is what
+ * actually gets used, which is fine since it's shown at the same time.
+ */
+function listenForAutoReconnect(onFound) {
+  stopListeningForAutoReconnect();
+  const handler = (event) => {
+    stopListeningForAutoReconnect();
+    onFound(event.target);
+  };
+  navigator.serial.addEventListener('connect', handler);
+  autoReconnectCleanup = () => navigator.serial.removeEventListener('connect', handler);
+}
+
 /**
  * Single entry point for connecting: works whether the board is currently
  * running normal (CDC-capable) firmware, is already sitting in bootloader
@@ -192,11 +235,12 @@ function checkWebSerialSupport() {
  */
 async function connectAndFlash() {
   el('manual-bootloader-button').hidden = true;
+  stopListeningForAutoReconnect();
 
   let port;
   setStatus('Requesting your 4dapter...', 'busy');
   try {
-    port = await navigator.serial.requestPort();
+    port = await navigator.serial.requestPort({ filters: ARDUINO_VENDOR_FILTER });
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
@@ -224,23 +268,40 @@ async function connectAndFlash() {
     return;
   }
 
-  // Chrome will not show a device picker a second time from the same click,
-  // no matter how soon after the first we ask — confirmed on real hardware,
-  // it fails instantly rather than after any delay. So there's no point
-  // attempting that silently; go straight to asking for one more click,
-  // as fast as possible, since the bootloader only waits a few seconds.
-  // The picker that click opens can sit there and update live as the board
-  // finishes resetting — no need to wait for that first.
-  setStatus('Board resetting — click below now to select it. You have a few seconds before it reverts.', 'busy');
+  // Two paths race from here, whichever happens first wins:
+  //  1. The board reconnecting fires a 'connect' event with zero clicks
+  //     needed, IF this exact bootloader identity was already authorized on
+  //     an earlier flash in this browser.
+  //  2. The user clicks the fallback button, which Chrome always allows
+  //     (it's a fresh click) but always requires when path 1 doesn't apply
+  //     (first time ever authorizing this board here) — so it's shown
+  //     immediately rather than waiting to see if path 1 pans out.
+  setStatus('Board resetting — click below now to select it. (If this board was flashed here before, it may connect automatically instead.)', 'busy');
+  logLine('Listening for an automatic reconnect, and showing the manual fallback at the same time...');
   el('manual-bootloader-button').hidden = false;
   el('manual-bootloader-button').focus();
+
+  listenForAutoReconnect(async (autoPort) => {
+    el('manual-bootloader-button').hidden = true;
+    logLine('Board reconnected automatically — checking it...');
+    const ready = await probeBootloader(autoPort, { log: logLine });
+    if (!ready) {
+      logLine('Not answering yet — click the button below to try again.');
+      el('manual-bootloader-button').hidden = false;
+      return;
+    }
+    state.bootloaderPort = autoPort;
+    el('flash-button').disabled = false;
+    await doFlash();
+  });
 }
 
 async function connectBootloaderPortManually() {
+  stopListeningForAutoReconnect();
   setStatus('Requesting the bootloader-mode device...', 'busy');
   let port;
   try {
-    port = await navigator.serial.requestPort();
+    port = await navigator.serial.requestPort({ filters: ARDUINO_VENDOR_FILTER });
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
