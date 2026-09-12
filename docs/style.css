@@ -59,23 +59,6 @@ header p {
   margin-bottom: 16px;
 }
 
-.step {
-  opacity: 0.45;
-  pointer-events: none;
-  transition: opacity 0.15s ease;
-}
-
-.step--active {
-  opacity: 1;
-  pointer-events: auto;
-  border-color: var(--accent);
-}
-
-.step--done {
-  opacity: 0.75;
-  pointer-events: auto;
-}
-
 .step h2 {
   margin: 0 0 10px;
   font-size: 1.05rem;
@@ -91,13 +74,9 @@ header p {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: var(--border);
-  font-size: 0.8rem;
-}
-
-.step--active h2 .step-number {
   background: var(--accent);
   color: #fff;
+  font-size: 0.8rem;
 }
 
 select,

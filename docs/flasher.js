@@ -83,14 +83,6 @@ function setStatus(text, kind = '') {
   statusEl.className = 'status' + (kind ? ' status--' + kind : '');
 }
 
-function setStep(stepNumber) {
-  document.querySelectorAll('.step').forEach((stepEl) => {
-    const n = Number(stepEl.dataset.step);
-    stepEl.classList.toggle('step--active', n === stepNumber);
-    stepEl.classList.toggle('step--done', n < stepNumber);
-  });
-}
-
 function renderVariantPicker() {
   const select = el('variant-select');
   select.innerHTML = '';
@@ -171,14 +163,12 @@ function checkWebSerialSupport() {
 }
 
 async function connectNormalPort() {
-  setStep(2);
   setStatus('Requesting your 4dapter’s serial port...', 'busy');
   try {
     state.normalPort = await navigator.serial.requestPort();
     logLine('Selected the board’s normal-mode serial port.');
     await touchReset1200(state.normalPort, { log: logLine });
-    setStatus('Board should now be in bootloader mode — select it below.', 'ok');
-    setStep(3);
+    setStatus('Board should now be in bootloader mode — select it in step 3.', 'ok');
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
@@ -186,8 +176,7 @@ async function connectNormalPort() {
 }
 
 function skipToManualReset() {
-  setStep(3);
-  setStatus('Press the reset button on your 4dapter now, then select it below.', '');
+  setStatus('Press the reset button on your 4dapter now, then select it in step 3.', '');
 }
 
 async function connectBootloaderPort() {
@@ -195,8 +184,7 @@ async function connectBootloaderPort() {
   try {
     state.bootloaderPort = await navigator.serial.requestPort();
     logLine('Selected a device — ready to flash.');
-    setStatus('Connected. Click "Flash firmware" to continue.', 'ok');
-    setStep(4);
+    setStatus('Connected. Click "Flash firmware" in step 4 to continue.', 'ok');
     el('flash-button').disabled = false;
   } catch (e) {
     setStatus(`Couldn't connect: ${e.message}`, 'error');
@@ -229,7 +217,6 @@ async function doFlash() {
     });
     progressEl.value = 100;
     setStatus('Done! Your 4dapter is now running the new firmware.', 'ok');
-    setStep(5);
   } catch (e) {
     setStatus(`Flashing failed: ${e.message}`, 'error');
     logLine(`Error: ${e.message}`);
@@ -259,7 +246,6 @@ function init() {
   if (supported) {
     setStatus('Pick a firmware variant, then connect your 4dapter.', '');
   }
-  setStep(1);
 }
 
 document.addEventListener('DOMContentLoaded', init);
