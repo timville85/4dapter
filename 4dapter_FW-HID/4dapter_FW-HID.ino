@@ -1,423 +1,260 @@
-
 /*
- *  GNU GENERAL PUBLIC LICENSE
- *  Version 3, 29 June 2007
- *  
- *  This program is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *  
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *  
- *  You should have received a copy of the GNU General Public License
- *  along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *  
+ * 4dapter HID Firmware — main sketch (NES, SNES, Genesis, N64 -> USB HID gamepads)
+ *
+ * Copyright (C) 2026 4dapter project
+ *
+ * This single sketch replaces what used to be four separate, nearly-identical
+ * firmware folders (FW-HID, FW-HID-ALT, FW-HID-Single, FW-4P-HID). Which one
+ * you get is selected at build time with the HID_LAYOUT flag below:
+ *
+ *   HID_LAYOUT_TRIPLE      (default) 3 gamepads: NES+SNES combined, Genesis, N64.
+ *   HID_LAYOUT_TRIPLE_ALT  3 gamepads: NES, SNES, Genesis+N64 combined.
+ *   HID_LAYOUT_SINGLE      1 gamepad: NES+SNES+Genesis+N64 all combined (Batocera).
+ *   HID_LAYOUT_QUAD        4 gamepads, one per port (needs CDC_DISABLED, see below).
+ *
+ * Build with e.g. `-DHID_LAYOUT=HID_LAYOUT_SINGLE` (Arduino IDE: edit the
+ * `#define HID_LAYOUT` line below instead; arduino-cli/CI: see ci/build-all.sh).
+ *
+ * Original implementations for each controller type are credited in the
+ * corresponding shared-library source files (Gamepad, SegaController32U4,
+ * N64_Controller, NesSnesShiftReader, under lib/4dapterCore).
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+
+#define HID_LAYOUT_TRIPLE     0
+#define HID_LAYOUT_TRIPLE_ALT 1
+#define HID_LAYOUT_SINGLE     2
+#define HID_LAYOUT_QUAD       3
+
+#ifndef HID_LAYOUT
+#define HID_LAYOUT HID_LAYOUT_TRIPLE
+#endif
 
 #include "SegaController32U4.h"
 #include "Gamepad.h"
 #include "N64_Controller.h"
+#include "NesSnesShiftReader.h"
+#include "ControllerState.h"
 
-// ATT: 20 chars max (including NULL at the end) according to Arduino source code.
-// Additionally serial number is used to differentiate arduino projects to have different button maps!
-const char *gp_serial = "4DAPTER";
+#if (HID_LAYOUT == HID_LAYOUT_QUAD) && !defined(CDC_DISABLED)
+#warning "CDC_DISABLED is not defined. Only 3 HID endpoints will be available (4th/N64 will not appear). Copy platform.local.txt to the AVR core folder and clear build cache, or build with arduino-cli using --build-property compiler.{c,cpp}.extra_flags=-DCDC_DISABLED. See README.md."
+#endif
 
-#define N64MapJoyToMax  true  // 'true' to map value to DInput Max (-128 to +127), set to false to use controller value directly
-#define N64JoyMax       80     // N64 Joystick Maximum Travel Range (0-127, typically between 75-85 on OEM controllers)
-#define N64JoyDeadzone  3      // Deadzone to return 0, minimizes drift
+// Genesis MiSTer-mode (HOME+Z toggle, EEPROM-persisted A/B+X/Y swap) is part of
+// every layout except QUAD, which has never had it (matches the original
+// 4-Player HID build exactly).
+#ifndef SC_MISTER_EEPROM
+#if (HID_LAYOUT == HID_LAYOUT_QUAD)
+#define SC_MISTER_EEPROM 0
+#else
+#define SC_MISTER_EEPROM 1
+#endif
+#endif
 
-N64Controller       n64_controller;
-N64_status_packet   N64Data;
-int8_t LeftX = 0;
-int8_t LeftY = 0;
+// N64 button bit layout: every layout uses the original fixed layout except
+// the default Batocera (SINGLE) build, which ships the alternate layout.
+#ifndef N64_REPORT_LAYOUT
+#if (HID_LAYOUT == HID_LAYOUT_SINGLE)
+#define N64_REPORT_LAYOUT N64_LAYOUT_BATOCERA
+#else
+#define N64_REPORT_LAYOUT N64_LAYOUT_STANDARD
+#endif
+#endif
 
-#define NES       0
-#define SNES      1
-#define GENESIS   2
+// Number of USB HID gamepad endpoints for this layout.
+#if (HID_LAYOUT == HID_LAYOUT_QUAD)
+#define GAMEPAD_COUNT 4
+#elif (HID_LAYOUT == HID_LAYOUT_SINGLE)
+#define GAMEPAD_COUNT 1
+#else
+#define GAMEPAD_COUNT 3
+#endif
 
-#define BUTTONS   0
-#define AXES      1
+// USB serial string (max 20 chars including NULL). Used to identify this device to the host.
+const char* usbSerialNumber = "4DAPTER";
 
-#define UP        0x01
-#define DOWN      0x02
-#define LEFT      0x04
-#define RIGHT     0x08
+// N64 analog stick: map to full HID range (-128..127) when true; raw controller value when false.
+#define N64_MAP_JOY_TO_MAX true
+#define N64_JOY_MAX        80 // Stick physical range (0-127; OEM typically 75-85)
+#define N64_JOY_DEADZONE   3  // Center deadzone to reduce drift
 
-#define NTT_BIT   0x00
-#define NODATA    0x00
+// HID axis values when mapping a digital d-pad to a virtual stick.
+#define HID_AXIS_CENTER 0
+#define HID_AXIS_POS    0x7F
+#define HID_AXIS_NEG    (int8_t)0x80
 
 void sendLatch();
 void sendClock();
 void sendState();
 
-// Controller DB9 pins (looking face-on to the end of the plug):
-// 5 4 3 2 1
-//  9 8 7 6
-//
-// Wire it all up according to the following table:
-//
-// Triple Controller    V1            V2        *** = V1 to V2 Change
-// ------------------------------------------------------------------
-// VCC                  VCC ()        VCC ()
-// GND                  GND ()        GND ()
-// Shared-LATCH         2   (PD1)     2   (PD1)
-// Shared-CLOCK         3   (PD0)     3   (PD0)
-// NES-Data1 (4)        A0  (PF7)     A0  (PF7)
-// NES-DataD4 (5)       N/C           9   (PB5) ***
-// NES-DataD3 (6)       N/C           8   (PB4) ***
-// SNES-Data1 (4)       A1  (PF6)     A1  (PF6)
-// SNES-DataD2 (5)      N/C           RX  (PD2) ***
-// SNES-DataD3 (6)      N/C           TX  (PD3) ***
-// DB9-1                5   (PC6)     5   (PC6)
-// DB9-2                6   (PD7)     6   (PB2)
-// DB9-3                A2  (PF5)     A2  (PF5)
-// DB9-4                A3  (PF4)     A3  (PF4)
-// DB9-5                VCC ()        16  (PB2) ***
-// DB9-6                14  (PB3)     14  (PB3)
-// DB9-7                7   (PE6)     7   (PE6)
-// DB9-8                GND ()        GND ()
-// DB9-9                15  (PB1)     15  (PB1)
+/** Fills a gamepad report from a button mask and DPAD_* axis bits, no analog fallback. */
+static void setReportFromButtonsAndDpad(GamepadReport* report, uint32_t buttons, uint32_t dpadAxes)
+{
+  report->buttons = buttons;
+  report->Y = (dpadAxes & DPAD_DOWN) ? HID_AXIS_POS : (dpadAxes & DPAD_UP) ? HID_AXIS_NEG : HID_AXIS_CENTER;
+  report->X = (dpadAxes & DPAD_RIGHT) ? HID_AXIS_POS : (dpadAxes & DPAD_LEFT) ? HID_AXIS_NEG : HID_AXIS_CENTER;
+}
 
-/* Power Pad Number Guide
- * C/O: http://www.neshq.com/hardgen/powerpad.txt
+/**
+ * Resolves one HID axis where a digital d-pad direction takes priority over
+ * an analog fallback (used when a port with a d-pad and a port with an
+ * analog stick are combined onto the same gamepad, e.g. Genesis+N64 or
+ * NES+SNES+Genesis+N64). Matches the original firmware's behavior exactly:
+ * the fallback value is left untouched whenever neither digital direction
+ * is pressed, rather than being reset to 0.
+ */
+static int8_t combineAxisWithFallback(bool setPositive, bool setNegative, int8_t fallback)
+{
+  if (setPositive) return HID_AXIS_POS;
+  if (setNegative) return HID_AXIS_NEG;
+  return fallback;
+}
 
-+---------/          \-----------+
-|                       SIDE B   |
-|   __      __       __     __   |
-|  /  \    /  \     /  \   /  \  |
-| | 1  |  | 2  |   | 3  | | 4  | |
-|  \__/    \__/     \__/   \__/  |
-|   __      __       __     __   |
-|  /  \    /  \     /  \   /  \  |
-| | 5  |  | 6  |   | 7  | | 8  | |
-|  \__/    \__/     \__/   \__/  |
-|   __      __       __     __   |
-|  /  \    /  \     /  \   /  \  |
-| | 9  |  | 10 |   | 11 | | 12 | |
-|  \__/    \__/     \__/   \__/  |
-|                                |
-+--------------------------------+
+/*
+ * Controller DB9 pinout (view: face-on to the plug)
+ *
+ *     Pin layout:    5  4  3  2  1
+ *                    9  8  7  6
+ *
+ * Wiring (Triple Controller V1/V2; *** = change from V1 to V2):
+ *
+ *   Function          V1        V2        Notes
+ *   ---------         --------  -------- --------------------
+ *   VCC               VCC       VCC
+ *   GND               GND       GND
+ *   Shared LATCH      PD1 (2)   PD1 (2)
+ *   Shared CLOCK      PD0 (3)   PD0 (3)
+ *   NES Data1         PF7 (A0)  PF7 (A0)
+ *   NES Data D4       N/C       PB5 (9)  ***
+ *   NES Data D3       N/C       PB4 (8)  ***
+ *   SNES Data1        PF6 (A1)  PF6 (A1)
+ *   SNES Data D2      N/C       PD2 (RX) ***
+ *   SNES Data D3      N/C       PD3 (TX) ***
+ *   DB9-1             PC6 (5)   PC6 (5)
+ *   DB9-2             PD7 (6)   PB2 (6)  ***
+ *   DB9-3             PF5 (A2)  PF5 (A2)
+ *   DB9-4             PF4 (A3)  PF4 (A3)
+ *   DB9-5 (VCC)       VCC       PB2 (16) ***
+ *   DB9-6             PB3 (14)  PB3 (14)
+ *   DB9-7             PE6 (7)   PE6 (7)
+ *   DB9-8 (GND)       GND       GND
+ *   DB9-9             PB1 (15)  PB1 (15)
+ */
 
-           __________
-+---------/          \-----------+
-|                       SIDE A   |
-|           __       __          |
-|          /  \     /  \         |
-|         |B 3 |   |B 2 |        |
-|          \__/     \__/         |
-|   __      __       __     __   |
-|  /  \    /  \     /  \   /  \  |
-| |B 8 |  |R 7 |   |R 6 | |B 5 | |
-|  \__/    \__/     \__/   \__/  |
-|           __       __          |
-|          /  \     /  \         |
-|         |B 11|   |B 10|        |
-|          \__/     \__/         |
-|                                |
-+--------------------------------+
-*/
+// One USB HID gamepad per GAMEPAD_COUNT above. Declaration order matters: it
+// determines USB endpoint order, so don't reorder this across layouts.
+Gamepad_ Gamepad[GAMEPAD_COUNT];
 
-// Manage EEPROM by making sure everything has
-// its own index.
+#if SC_MISTER_EEPROM
 enum EEPROMIndices { GENESIS_EEPROM };
+SegaController32U4 genesisController(GENESIS_EEPROM);
+#else
+SegaController32U4 genesisController;
+#endif
 
-// Set up USB HID gamepads
-Gamepad_ Gamepad[3];
-
-SegaController32U4 controller(GENESIS_EEPROM);
-
-// Controllers
-uint32_t  controllerData[2][2] = {{0,0},{0,0}};
-uint32_t  axisIndicator[32] = {0,0,0,0,1,1,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-uint16_t  currentState = 0;
-bool      nttActive = false;
-
-uint32_t  dataMaskNES[8] =        {0x02,   // A
-                                   0x01,   // B
-                                   0x40,   // Start 
-                                   0x80,   // Select
-                                   UP,     // D-Up
-                                   DOWN,   // D-Down
-                                   LEFT,   // D-Left
-                                   RIGHT   // D-Right
-                                   }; 
-
-// Power Pad D4
-uint32_t  dataMaskPowerPadD4[8] = {0x08,    // PowerPad #4
-                                   0x04,    // PowerPad #3
-                                   0x800,   // PowerPad #12
-                                   0x80,    // PowerPad #8
-                                   NODATA,  // No Data
-                                   NODATA,  // No Data
-                                   NODATA,  // No Data
-                                   NODATA   // No Data
-                                   }; 
-
-// Power Pad D3
-uint32_t  dataMaskPowerPadD3[8] = {0x02,   // PowerPad #2
-                                   0x01,   // PowerPad #1
-                                   0x10,   // PowerPad #5
-                                   0x100,  // PowerPad #9
-                                   0x20,   // PowerPad #6
-                                   0x200,  // PowerPad #10
-                                   0x400,  // PowerPad #11
-                                   0x40    // PowerPad #7
-                                   }; 
-
-uint32_t  dataMaskSNES[32] =      {0x01,    // B
-                                   0x04,    // Y
-                                   0x40,    // Start   
-                                   0x80,    // Select
-                                   UP,      // D-Up
-                                   DOWN,    // D-Down
-                                   LEFT,    // D-Left
-                                   RIGHT,   // D-Right
-                                   0x02,    // A
-                                   0x08,    // X
-                                   0x10,    // L
-                                   0x20,    // R
-                                   NODATA,  // SNES Control Bit
-                                   NTT_BIT, // NTT Indicator Bit
-                                   NODATA,  // SNES Control Bit
-                                   NODATA,  // SNES Control Bit
-                                   0x100,   // NTT 0
-                                   0x200,   // NTT 1
-                                   0x400,   // NTT 2
-                                   0x800,   // NTT 3
-                                   0x1000,  // NTT 4
-                                   0x2000,  // NTT 5
-                                   0x4000,  // NTT 6
-                                   0x8000,  // NTT 7
-                                   0x10000, // NTT 8
-                                   0x20000, // NTT 9
-                                   0x40000, // NTT *
-                                   0x80000, // NTT #
-                                   0x100000,// NTT .
-                                   0x200000,// NTT C
-                                   NODATA,  // NTT No Data
-                                   0x800000,// NTT End Comms
-                                   };
+NesSnesShiftReader nesSnesReader;
+N64Controller n64Controller;
 
 void setup()
 {
-  n64_controller.N64_init();
+  n64Controller.N64_init();
+  nesSnesReader.init();
 
-  // N64 Data pin setup
-  DDRD  &= ~B00010000; // inputs
-  PORTD |=  B00010000; // enable internal pull-ups
+  // N64 data pin: input with pull-up
+  DDRD &= ~B00010000;
+  PORTD |= B00010000;
 
-  // Setup NES / SNES latch and clock pins (2/3 or PD1/PD0)
-  DDRD  |=  B00000011; // output
-  PORTD &= ~B00000011; // low
-
-  // Setup NES / SNES data pins (A0/A1 or PF6/PF7)
-  DDRF  &= ~B11000000; // inputs
-  PORTF |=  B11000000; // enable internal pull-ups
-
-  // Setup NES PowerPad data pins (8/9 or PB4/PB5)
-  DDRB  &= ~B00110000; // inputs
-  PORTB |=  B00110000; // enable internal pull-ups
-
-  // Setup power pin (DB9 Pin 5) as output high (PB2)
-  DDRB  |= B00000100; // output
-  PORTB |= B00000100; // high
+  // DB9 pin 5 (VCC): output high
+  DDRB |= B00000100;
+  PORTB |= B00000100;
 
   delay(250);
 }
 
-void loop() 
-{ 
-  while(true)
+void loop()
+{
+  while (true)
   {
-    //8 cycles needed to capture 6-button controllers
-    for(uint8_t i = 0; i < 8; i++)
+    // Genesis 6-button: 8 read cycles per full state
+    word genesisState = 0;
+    for (uint8_t cycle = 0; cycle < 8; cycle++)
     {
-      currentState = controller.updateState();
+      genesisState = genesisController.updateState();
     }
+    genesisState = genesisController.getFinalState();
+    uint32_t genesisDpad = genesisState & 0x0F; // SC_BTN_UP/DOWN/LEFT/RIGHT bit values match DPAD_* exactly.
 
-    currentState = controller.getFinalState();
-    Gamepad[1]._GamepadReport.buttons = currentState >> 4;
+    uint32_t nesButtons, nesAxes, snesButtons, snesAxes;
+    nesSnesReader.read(nesButtons, nesAxes, snesButtons, snesAxes);
 
-    if      (((currentState & SC_BTN_DOWN) >> SC_BIT_SH_DOWN))    Gamepad[1]._GamepadReport.Y = 0x7F;
-    else if (((currentState & SC_BTN_UP) >> SC_BIT_SH_UP))        Gamepad[1]._GamepadReport.Y = 0x80;
-    else                                                          Gamepad[1]._GamepadReport.Y = 0;
+    n64Controller.getN64Packet();
+    N64_status_packet n64Data = n64Controller.N64_status;
+    uint32_t n64Buttons = n64ButtonsFromPacket(n64Data, N64_REPORT_LAYOUT);
+    int8_t n64StickX = n64StickToHidAxis(n64Data.stick_x, false, N64_MAP_JOY_TO_MAX, N64_JOY_MAX, N64_JOY_DEADZONE);
+    int8_t n64StickY = n64StickToHidAxis(n64Data.stick_y, true, N64_MAP_JOY_TO_MAX, N64_JOY_MAX, N64_JOY_DEADZONE);
 
-    if      (((currentState & SC_BTN_RIGHT) >> SC_BIT_SH_RIGHT))  Gamepad[1]._GamepadReport.X = 0x7F;
-    else if (((currentState & SC_BTN_LEFT) >> SC_BIT_SH_LEFT))    Gamepad[1]._GamepadReport.X = 0x80;
-    else                                                          Gamepad[1]._GamepadReport.X = 0;
+#if (HID_LAYOUT == HID_LAYOUT_TRIPLE)
+    // Gamepad[0] = NES+SNES combined, Gamepad[1] = Genesis, Gamepad[2] = N64.
+    setReportFromButtonsAndDpad(&Gamepad[0]._GamepadReport, nesButtons | snesButtons, nesAxes | snesAxes);
+    setReportFromButtonsAndDpad(&Gamepad[1]._GamepadReport, genesisState >> 4, genesisDpad);
+    Gamepad[2]._GamepadReport.buttons = n64Buttons;
+    Gamepad[2]._GamepadReport.X = n64StickX;
+    Gamepad[2]._GamepadReport.Y = n64StickY;
 
-    for(uint8_t j = 0; j < 1; j++)
-    {
-      sendLatch();
+#elif (HID_LAYOUT == HID_LAYOUT_TRIPLE_ALT)
+    // Gamepad[0] = NES, Gamepad[1] = SNES, Gamepad[2] = Genesis+N64 combined.
+    setReportFromButtonsAndDpad(&Gamepad[0]._GamepadReport, nesButtons, nesAxes);
+    setReportFromButtonsAndDpad(&Gamepad[1]._GamepadReport, snesButtons, snesAxes);
+    Gamepad[2]._GamepadReport.buttons = n64Buttons | (genesisState >> 4);
+    // Genesis's digital d-pad overrides the N64 analog stick when pressed;
+    // otherwise the N64 stick value shows through (matches original HID-ALT).
+    Gamepad[2]._GamepadReport.Y = combineAxisWithFallback(genesisDpad & DPAD_DOWN, genesisDpad & DPAD_UP, n64StickY);
+    Gamepad[2]._GamepadReport.X = combineAxisWithFallback(genesisDpad & DPAD_RIGHT, genesisDpad & DPAD_LEFT, n64StickX);
 
-      controllerData[NES][BUTTONS] = 0;
-      controllerData[NES][AXES] = 0;
-      
-      controllerData[SNES][BUTTONS] = 0;
-      controllerData[SNES][AXES] = 0;
+#elif (HID_LAYOUT == HID_LAYOUT_SINGLE)
+    // Gamepad[0] = NES+SNES+Genesis+N64, all combined onto one report.
+    uint32_t combinedAxes = nesAxes | snesAxes | genesisDpad;
+    Gamepad[0]._GamepadReport.buttons = nesButtons | snesButtons | (genesisState >> 4) | n64Buttons;
+    Gamepad[0]._GamepadReport.Y = combineAxisWithFallback(combinedAxes & DPAD_DOWN, combinedAxes & DPAD_UP, n64StickY);
+    Gamepad[0]._GamepadReport.X = combineAxisWithFallback(combinedAxes & DPAD_RIGHT, combinedAxes & DPAD_LEFT, n64StickX);
 
-      nttActive = false;
-  
-      for(uint8_t dataBitCounter = 0; dataBitCounter < 32; dataBitCounter++)
-      {
-        // If no NTT controller, end the loop early
-        if(!nttActive && dataBitCounter > 13)
-        {
-          break;
-        }
+#else // HID_LAYOUT_QUAD
+    // Gamepad[0]=NES, [1]=SNES, [2]=Genesis, [3]=N64, each fully separate.
+    setReportFromButtonsAndDpad(&Gamepad[0]._GamepadReport, nesButtons, nesAxes);
+    setReportFromButtonsAndDpad(&Gamepad[1]._GamepadReport, snesButtons, snesAxes);
+    setReportFromButtonsAndDpad(&Gamepad[2]._GamepadReport, genesisState >> 4, genesisDpad);
+    Gamepad[3]._GamepadReport.buttons = n64Buttons;
+    Gamepad[3]._GamepadReport.X = n64StickX;
+    Gamepad[3]._GamepadReport.Y = n64StickY;
+#endif
 
-        //NES Power Pad Controller
-        if((dataBitCounter < 8) && ((PINB & B00100000) == 0)) //Power Pad Pin D4 (bottom)
-        { 
-          controllerData[NES][BUTTONS] |= dataMaskPowerPadD4[dataBitCounter];
-        }
-
-        if((dataBitCounter < 8) && ((PINB & B00010000) == 0)) //Power Pad Pin D3 (middle)
-        { 
-          controllerData[NES][BUTTONS] |= dataMaskPowerPadD3[dataBitCounter];
-        }
-
-        // NES Controller
-        if((dataBitCounter < 8) && ((PINF & B10000000) == 0)) //If NES data line is low (indicating a press)
-        { 
-          if(axisIndicator[dataBitCounter])
-          {
-            controllerData[NES][AXES] |= dataMaskNES[dataBitCounter];
-          }
-          else
-          {
-            controllerData[NES][BUTTONS] |= dataMaskNES[dataBitCounter];
-          }
-        }
-
-        // SNES / NTT Controller 
-        if((PINF & B01000000) == 0) //If SNES data line is low (indicating a press)
-        {
-          if(dataBitCounter == 13)
-          {
-            nttActive = true;
-          }
-          
-          if(axisIndicator[dataBitCounter])
-          {
-            controllerData[SNES][AXES] |= dataMaskSNES[dataBitCounter];
-          }
-          else
-          {
-            controllerData[SNES][BUTTONS] |= dataMaskSNES[dataBitCounter];
-          }
-        }
-        
-        sendClock();
-      }
-  
-      Gamepad[0]._GamepadReport.buttons = controllerData[NES][BUTTONS] | controllerData[SNES][BUTTONS];
-      
-      if      ( ((controllerData[NES][AXES] & DOWN) >> 1) | ((controllerData[SNES][AXES] & DOWN) >> 1))  Gamepad[0]._GamepadReport.Y = 0x7F;
-      else if (  (controllerData[NES][AXES] & UP  )       |  (controllerData[SNES][AXES] & UP  )      )  Gamepad[0]._GamepadReport.Y = 0x80;
-      else    Gamepad[0]._GamepadReport.Y = 0;
-
-      if      ( ((controllerData[NES][AXES] & RIGHT) >> 3) | ((controllerData[SNES][AXES] & RIGHT) >> 3))  Gamepad[0]._GamepadReport.X = 0x7F;
-      else if ( ((controllerData[NES][AXES] & LEFT ) >> 2) | ((controllerData[SNES][AXES] & LEFT ) >> 2))  Gamepad[0]._GamepadReport.X = 0x80;
-      else    Gamepad[0]._GamepadReport.X = 0;
-      
-      n64_controller.getN64Packet();
-      N64Data = n64_controller.N64_status;
-
-      Gamepad[2]._GamepadReport.X = 0;
-      Gamepad[2]._GamepadReport.Y = 0;
-      Gamepad[2]._GamepadReport.buttons = 0;
-      
-      if(N64Data.stick_x >= -N64JoyDeadzone && N64Data.stick_x <= N64JoyDeadzone)
-      {
-        LeftX = 0;
-      }
-      else
-      {
-        if(N64MapJoyToMax)
-        {
-          if(N64Data.stick_x > N64JoyMax)   N64Data.stick_x = N64JoyMax;
-          if(N64Data.stick_x < -N64JoyMax)  N64Data.stick_x = -N64JoyMax;
-          LeftX = map(N64Data.stick_x, -N64JoyMax, N64JoyMax, -128, 127);
-        }
-        else
-        {
-          LeftX = (int8_t)N64Data.stick_x;
-        }
-      }
-
-      if(N64Data.stick_y >= -N64JoyDeadzone && N64Data.stick_y <= N64JoyDeadzone)
-      {
-        LeftY = 0;
-      }
-      else
-      {
-        if(N64MapJoyToMax)
-        {
-          if(N64Data.stick_y > N64JoyMax)   N64Data.stick_y = N64JoyMax;
-          if(N64Data.stick_y < -N64JoyMax)  N64Data.stick_y = -N64JoyMax;
-          LeftY = map(-N64Data.stick_y, -N64JoyMax, N64JoyMax, -128, 127); 
-        }
-        else
-        {
-          LeftY = (int8_t) -N64Data.stick_y;
-        }
-      }
-
-
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x20 ? 1:0) << 4;  // L 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x10 ? 1:0) << 5;  // R
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x08 ? 1:0) << 13; // C-Uup
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x04 ? 1:0) << 3;  // C-Down 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x02 ? 1:0) << 2;  // C-Left 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data2 & 0x01 ? 1:0) << 6;  // C-Right
-
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x80 ? 1:0) << 1;  // A 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x40 ? 1:0) << 0;  // B   
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x20 ? 1:0) << 8;  // Z
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x10 ? 1:0) << 7;  // Start 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x08 ? 1:0) << 9;  // D-Up 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x04 ? 1:0) << 10; // D-Down 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x02 ? 1:0) << 11; // D-Left 
-      Gamepad[2]._GamepadReport.buttons |= (N64Data.data1 & 0x01 ? 1:0) << 12; // D-Right
-
-
-      Gamepad[2]._GamepadReport.buttons &= 0x0000FFFF;
-      
-      Gamepad[2]._GamepadReport.X = LeftX;
-      Gamepad[2]._GamepadReport.Y = LeftY;
-    }    
-
-  sendState();
- }
-}
-
-void sendLatch()
-{
-  // Send a latch pulse to NES/SNES
-  PORTD |=  B00000010; // Set HIGH
-  __builtin_avr_delay_cycles(192);
-  PORTD &= ~B00000010; // Set LOW
-  __builtin_avr_delay_cycles(72);
-}
-
-void sendClock()
-{
-  // Send a clock pulse to NES/SNES
-  PORTD |=  B00000001; // Set HIGH
-  __builtin_avr_delay_cycles(96);
-  PORTD &= ~B00000001; // Set LOW
-  __builtin_avr_delay_cycles(72);
+    sendState();
+  }
 }
 
 void sendState()
 {
-  Gamepad[0].send();
-  Gamepad[1].send();
-  Gamepad[2].send();
+  // isPlugged() guards against sending on an endpoint the host never
+  // actually registered (relevant for the 4th/QUAD endpoint; a no-op for
+  // every other layout, where all declared endpoints always register).
+  for (uint8_t i = 0; i < GAMEPAD_COUNT; i++)
+  {
+    if (Gamepad[i].isPlugged())
+    {
+      Gamepad[i].send();
+    }
+  }
   __builtin_avr_delay_cycles(16000);
 }

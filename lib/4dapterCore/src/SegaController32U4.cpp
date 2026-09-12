@@ -36,23 +36,28 @@
 // Value that triggers MiSTer mode if in EEPROM
 static const char kMisterModeChar = 'M';
 
+static void initPins()
+{
+  // Setup select pin as output high (7, PE6)
+  DDR_SELECT  |= MASK_SELECT; // output
+  PORT_SELECT |= MASK_SELECT; // high
+
+  // Setup input pins (A0,A1,A2,A3,14,15 or PF7,PF6,PF5,PF4,PB3,PB1)
+  DDRF  &= ~B00110000; // input
+  PORTF |=  B00110000; // high to enable internal pull-up
+  DDRB  &= ~B00001010; // input
+  PORTB |=  B00001010; // high to enable internal pull-up
+  DDRC  &= ~B01000000; // input
+  PORTC |=  B01000000; // high to enable internal pull-up
+  DDRD  &= ~B10000000; // input
+  PORTD |=  B10000000; // high to enable internal pull-up
+}
+
 SegaController32U4::SegaController32U4(int eeprom_index)
     : _eeprom_index(eeprom_index)
 {
-    // Setup select pin as output high (7, PE6)
-    DDR_SELECT  |= MASK_SELECT; // output
-    PORT_SELECT |= MASK_SELECT; // high
+    initPins();
 
-    // Setup input pins (A0,A1,A2,A3,14,15 or PF7,PF6,PF5,PF4,PB3,PB1)
-    DDRF  &= ~B00110000; // input
-    PORTF |=  B00110000; // high to enable internal pull-up
-    DDRB  &= ~B00001010; // input
-    PORTB |=  B00001010; // high to enable internal pull-up
-    DDRC  &= ~B01000000; // input
-    PORTC |=  B01000000; // high to enable internal pull-up
-    DDRD  &= ~B10000000; // input
-    PORTD |=  B10000000; // high to enable internal pull-up   
-    
     _inputReg1 = 0;
     _inputReg2 = 0;
     _inputReg3 = 0;
@@ -61,12 +66,31 @@ SegaController32U4::SegaController32U4(int eeprom_index)
     _previousState = 0;
     _misterMode = (EEPROM.read(_eeprom_index) == kMisterModeChar);
     _connected = 0;
-    _sixButtonMode = false;
+    sixButtonMode = false;
+    _ignoreCycles = 0;
+    _pinSelect = true;
+}
+
+SegaController32U4::SegaController32U4()
+    : _eeprom_index(-1)
+{
+    initPins();
+
+    _inputReg1 = 0;
+    _inputReg2 = 0;
+    _inputReg3 = 0;
+    _inputReg4 = 0;
+    _currentState = 0;
+    _previousState = 0;
+    _misterMode = false; // No EEPROM-backed MiSTer mode in this configuration.
+    _connected = 0;
+    sixButtonMode = false;
     _ignoreCycles = 0;
     _pinSelect = true;
 }
 
 void SegaController32U4::toggleMisterMode() {
+  if (_eeprom_index < 0) return; // MiSTer mode disabled for this instance.
   _misterMode = !_misterMode;
   const char value = _misterMode ? kMisterModeChar : 0;
   EEPROM.write(_eeprom_index, value);
@@ -91,14 +115,14 @@ word SegaController32U4::updateState()
 {
   // "Normal" Six button controller reading routine, done a bit differently in this project
   // Cycle  TH out  TR in  TL in  D3 in  D2 in  D1 in  D0 in
-  // 0      LO      Start  A      0      0      Down   Up      
+  // 0      LO      Start  A      0      0      Down   Up
   // 1      HI      C      B      Right  Left   Down   Up
   // 2      LO      Start  A      0      0      Down   Up      (Check connected and read Start and A in this cycle)
   // 3      HI      C      B      Right  Left   Down   Up      (Read B, C and directions in this cycle)
   // 4      LO      Start  A      0      0      0      0       (Check for six button controller in this cycle)
-  // 5      HI      C      B      Mode   X      Y      Z       (Read X,Y,Z and Mode in this cycle)    
-  // 6      LO      ---    ---    ---    ---    ---    Home    (Home only for 8bitdo wireless gamepads)      
-  // 7      HI      ---    ---    ---    ---    ---    ---    
+  // 5      HI      C      B      Mode   X      Y      Z       (Read X,Y,Z and Mode in this cycle)
+  // 6      LO      ---    ---    ---    ---    ---    Home    (Home only for 8bitdo wireless gamepads)
+  // 7      HI      ---    ---    ---    ---    ---    ---
 
   // Set the select pin low/high
   _pinSelect = !_pinSelect;
@@ -120,14 +144,14 @@ word SegaController32U4::updateState()
       if(_connected)
       {
         // Check if six button mode is active
-        if(_sixButtonMode)
+        if(sixButtonMode)
         {
           // Read input pins for X, Y, Z, Mode
           (bitRead(_inputReg3, DB9_PIN1_BIT) == LOW) ? _currentState |= SC_BTN_Z : _currentState &= ~SC_BTN_Z;
           (bitRead(_inputReg4, DB9_PIN2_BIT) == LOW) ? _currentState |= SC_BTN_Y : _currentState &= ~SC_BTN_Y;
           (bitRead(_inputReg1, DB9_PIN3_BIT) == LOW) ? _currentState |= SC_BTN_X : _currentState &= ~SC_BTN_X;
           (bitRead(_inputReg1, DB9_PIN4_BIT) == LOW) ? _currentState |= SC_BTN_MODE : _currentState &= ~SC_BTN_MODE;
-          _sixButtonMode = false;
+          sixButtonMode = false;
           _ignoreCycles = 2; // Ignore the two next cycles (cycles 6 and 7 in table above)
         }
         else
@@ -145,7 +169,7 @@ word SegaController32U4::updateState()
       {
         // Clear current state
         _currentState = 0;
-        
+
         // Read input pins for Up, Down, Left, Right, Fire1, Fire2
         if (bitRead(_inputReg3, DB9_PIN1_BIT) == LOW) { _currentState |= SC_BTN_UP; }
         if (bitRead(_inputReg4, DB9_PIN2_BIT) == LOW) { _currentState |= SC_BTN_DOWN; }
@@ -159,17 +183,17 @@ word SegaController32U4::updateState()
     {
       // Check if a controller is connected
       _connected = (bitRead(_inputReg1, DB9_PIN3_BIT) == LOW && bitRead(_inputReg1, DB9_PIN4_BIT) == LOW);
-      
+
       // Check for six button mode
-      _sixButtonMode = (bitRead(_inputReg3, DB9_PIN1_BIT) == LOW && bitRead(_inputReg4, DB9_PIN2_BIT) == LOW);
-      
-      // Read input pins for A and Start 
+      sixButtonMode = (bitRead(_inputReg3, DB9_PIN1_BIT) == LOW && bitRead(_inputReg4, DB9_PIN2_BIT) == LOW);
+
+      // Read input pins for A and Start
       if(_connected)
       {
-        if(!_sixButtonMode)
+        if(!sixButtonMode)
         {
           (bitRead(_inputReg2, DB9_PIN6_BIT) == LOW) ? _currentState |= SC_BTN_A : _currentState &= ~SC_BTN_A;
-          (bitRead(_inputReg2, DB9_PIN9_BIT) == LOW) ? _currentState |= SC_BTN_START : _currentState &= ~SC_BTN_START; 
+          (bitRead(_inputReg2, DB9_PIN9_BIT) == LOW) ? _currentState |= SC_BTN_START : _currentState &= ~SC_BTN_START;
         }
       }
     }

@@ -24,7 +24,7 @@
 
 #include "HID.h"
 
-/** USB serial string reported to the host (see 4dapter_FW-HID.ino). */
+/** USB serial string reported to the host. Defined by the main sketch. */
 extern const char* usbSerialNumber;
 
 typedef struct
@@ -55,7 +55,9 @@ class Gamepad_ : public PluggableUSBModule
   Gamepad_(void);
   void reset(void);
   void send();
-  /** True if this instance registered its USB endpoint (avoids sending on unregistered 4th when CDC is enabled). */
+  /** True if this instance registered its USB endpoint (avoids sending on an
+   *  endpoint the host didn't actually enumerate, e.g. the 4th HID endpoint
+   *  when CDC_DISABLED wasn't applied or wasn't effective on the host). */
   bool isPlugged() const
   {
     return _plugged;
@@ -64,6 +66,3 @@ class Gamepad_ : public PluggableUSBModule
  private:
   bool _plugged;
 };
-
-/** Four USB HID gamepads (4 endpoints = 4 players). Defined in the main sketch. */
-extern Gamepad_ Gamepad[4];

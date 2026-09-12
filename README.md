@@ -3,16 +3,26 @@
 
 This project combines the NES, SNES, N64 and Genesis DaemonBite Retro Controllers projects together with a custom PCB to support 4 different controllers with a single socketed Arduino Pro Micro. PCB (KiCad + Gerbers), 3D Cases, and muliple firmware versions (Arduino code) all available in this repository.
 
+The controller-reading code (NES/SNES/Genesis/N64 protocol handling) lives once, in
+[`lib/4dapterCore`](lib/4dapterCore) (and [`lib/4dapterHID`](lib/4dapterHID) for the HID
+output class), shared by every firmware target below — there's no per-variant copy to
+keep in sync anymore.
+
 <img src="https://github.com/timville85/4dapter/assets/31223405/ef0abcfb-1a11-40ba-a59b-c8b400074be6" width=30% height=30%>
 <img src="https://github.com/timville85/4dapter/assets/31223405/1e0bf1f6-3932-423e-93d6-e7c35eedb27a" width=25% height=25%>
 <img src="https://github.com/timville85/4dapter/assets/31223405/64f502cb-03b1-4d93-b38f-2e75e7a82c00" width=25% height=25%>
 
 PCB Kits + Fully Assembled units (with firmware of your choice) available on [Tindie](https://www.tindie.com/products/31785/)
 
-3 different firmware versions are available in this repo:
-* Default: Optimized for MiSTer, PC, Raspberry Pi, etc. - reports as 3 separate controllers (NES/SNES combined) and supports multiplayer from a single unit.
-* Analogue Pocket: Optimized for Pocket Dock - reports as a single wired XInput device.
-* Nintendo Switch: Optimized for Nintendo Switch Online NES, SNES, and Genesis collections - reports as a single wired switch controller.
+Firmware is organized as 3 sketch folders, covering 6 build variants:
+* [**4dapter_FW-HID**](4dapter_FW-HID) — Optimized for MiSTer, PC, Raspberry Pi, Batocera, etc. One sketch, 4 selectable layouts (`HID_LAYOUT` build flag): 3 gamepads with NES+SNES combined (default), 3 gamepads with Genesis+N64 combined, 1 combined gamepad (Batocera), or 4 fully separate gamepads.
+* [**4dapter_FW-Switch**](4dapter_FW-Switch) — Optimized for Nintendo Switch Online NES, SNES, and Genesis collections - reports as a single wired Switch controller.
+* [**4dapter_FW-XInput**](4dapter_FW-XInput) — Optimized for Analogue Pocket Dock - reports as a single wired XInput device.
+
+See each folder's README for build/flash instructions, or use the web flasher (no
+Arduino IDE required) once published — see [`ci/build-all.sh`](ci/build-all.sh) and
+[`.github/workflows/build-firmware.yml`](.github/workflows/build-firmware.yml) for how
+release binaries are built.
 
 **MiSTer Users - Important Info:** For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
 
