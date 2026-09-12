@@ -19,10 +19,31 @@ Firmware is organized as 3 sketch folders, covering 6 build variants:
 * [**4dapter_FW-Switch**](4dapter_FW-Switch) — Optimized for Nintendo Switch Online NES, SNES, and Genesis collections - reports as a single wired Switch controller.
 * [**4dapter_FW-XInput**](4dapter_FW-XInput) — Optimized for Analogue Pocket Dock - reports as a single wired XInput device.
 
-See each folder's README for build/flash instructions, or use the web flasher (no
-Arduino IDE required) once published — see [`ci/build-all.sh`](ci/build-all.sh) and
-[`.github/workflows/build-firmware.yml`](.github/workflows/build-firmware.yml) for how
-release binaries are built.
+See each folder's README for build/flash instructions from source, or use the **web
+flasher** to flash a pre-built binary straight from your browser — no Arduino IDE, no
+board-manager URLs, no manual compiler flags. It works in Chrome or Edge on desktop
+(requires [Web Serial](https://developer.chrome.com/docs/capabilities/serial), which
+Safari and Firefox don't support).
+
+## Web Flasher
+
+The flasher lives in [`docs/`](docs) as a static site, meant to be hosted with GitHub
+Pages directly from this repo:
+
+1. Push a version tag (e.g. `git tag v1.0 && git push origin v1.0`) — this triggers
+   [`.github/workflows/build-firmware.yml`](.github/workflows/build-firmware.yml), which
+   builds all 6 firmware variants with [`ci/build-all.sh`](ci/build-all.sh) and attaches
+   them to a GitHub Release.
+2. In the repo's **Settings → Pages**, set the source to **Deploy from a branch**,
+   branch `main`, folder `/docs`.
+3. The flasher will be live at `https://<your-username>.github.io/4dapter/` and will
+   automatically pick up new firmware from each future release.
+
+The flasher fetches the `.hex` file for whichever variant you pick from the latest
+GitHub Release and flashes it over the AVR109 ("Caterina") bootloader protocol using
+[Web Serial](https://developer.chrome.com/docs/capabilities/serial) — see
+[`docs/avr109.js`](docs/avr109.js) for the protocol client. You can also load a `.hex`
+file you built yourself instead of using a release.
 
 **MiSTer Users - Important Info:** For maximum compatibly, install the MiSTer controller Map file found in the [MiSTer Maps Folder](https://github.com/timville85/4dapter/tree/main/MiSTer%20Maps) to your `/media/fat/config/inputs` directory on your MiSTer SD card and reboot your MiSTer. After doing this, you'll need to map the N64 controller in the N64 core for all buttons to work. The SNES / Genesis / NES cores will already be properly configured via the Map file.
 
