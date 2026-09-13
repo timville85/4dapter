@@ -373,50 +373,48 @@ async function doFlash() {
 // diagnostics.html for when we need to actually troubleshoot something, not
 // in the everyday flashing flow.
 //
-// Two things a naive "any gamepad, any input" check gets wrong here:
-//  - Chrome only exposes a given pad in navigator.getGamepads() once the
-//    user has pressed something on THAT pad (an anti-fingerprinting
-//    protection) — so a 4-controller build only reveals one pad until you've
-//    pressed a button on each of the other three. A native HID tool like
-//    Joystick Show isn't subject to this and sees all of them immediately,
-//    which is why it looked like our check was "missing" inputs. We track
-//    each pad's index as it's confirmed instead of expecting them all at once.
-//  - Once confirmed, a pad shouldn't un-confirm just because the status tick
-//    happens to land between button presses (or the OS momentarily drops the
-//    pad) — confirmation latches for the rest of the session.
+// Deliberately doesn't try to confirm each port separately on multi-gamepad
+// builds: each port is its own USB HID interface on one composite device,
+// and Chrome's Gamepad API only ever exposes ONE Gamepad slot for the whole
+// device no matter which port sends input (confirmed against real hardware
+// — a native HID tool that isn't subject to this, like macOS's Joystick
+// Show, correctly sees all of them as separate devices). So "any input at
+// all" is the most this check can honestly claim; the muted note below
+// explains why the diagnostics page may still be worth a look on those
+// builds, and once a pad reports any input, confirmation latches for the
+// rest of the session rather than flickering if the tick lands between
+// presses.
 // ---------------------------------------------------------------------------
 
 function watchForAnyInput() {
   const statusEl = el('quick-test-status');
-  const confirmedIndices = new Set();
+  const noteEl = el('quick-test-note');
+  let confirmed = false;
 
   const tick = () => {
     const pads = navigator.getGamepads ? navigator.getGamepads() : [];
     const connected = Array.from(pads).filter(Boolean);
-    for (const pad of connected) {
-      const hasInput = pad.buttons.some((b) => b.pressed) || pad.axes.some((a) => Math.abs(a) > 0.3);
-      if (hasInput) confirmedIndices.add(pad.index);
+    if (!confirmed) {
+      confirmed = connected.some(
+        (pad) => pad.buttons.some((b) => b.pressed) || pad.axes.some((a) => Math.abs(a) > 0.3)
+      );
     }
 
-    const expectedCount = state.variant.gamepadCount || 1;
-    if (confirmedIndices.size === 0) {
-      statusEl.textContent =
-        connected.length > 0
-          ? 'Device detected — press any button to confirm it responds.'
-          : 'Plug in your 4dapter and press a button.';
-      statusEl.className = 'status';
-    } else if (confirmedIndices.size < expectedCount) {
-      statusEl.textContent =
-        `✅ ${confirmedIndices.size} of ${expectedCount} controllers confirmed — press a button on each ` +
-        `remaining one too (your browser only "notices" a controller once you press something on it).`;
-      statusEl.className = 'status status--ok';
-    } else if (expectedCount > 1) {
-      statusEl.textContent = `✅ All ${expectedCount} controllers confirmed — your 4dapter is responding!`;
-      statusEl.className = 'status status--ok';
-    } else {
+    if (confirmed) {
       statusEl.textContent = '✅ Got it — your 4dapter is responding!';
       statusEl.className = 'status status--ok';
+    } else if (connected.length > 0) {
+      statusEl.textContent = 'Device detected — press any button to confirm it responds.';
+      statusEl.className = 'status';
+    } else {
+      statusEl.textContent = 'Plug in your 4dapter and press a button.';
+      statusEl.className = 'status';
     }
+
+    if (noteEl) {
+      noteEl.hidden = (state.variant.gamepadCount || 1) <= 1;
+    }
+
     requestAnimationFrame(tick);
   };
   tick();
