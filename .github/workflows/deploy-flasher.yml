@@ -1,0 +1,20 @@
+name: Deploy flasher to Cloudflare
+
+on:
+  push:
+    branches:
+      - refactor/shared-firmware-library
+    paths:
+      - "docs/**"
+      - "wrangler.jsonc"
+      - ".github/workflows/deploy-flasher.yml"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy
