@@ -1,15 +1,14 @@
 /*
  * flasher.js — UI glue for the 4dapter web flasher.
  *
- * Talks to GitHub Releases to find the firmware .hex files, drives the
- * avr109.js WebSerial client, and renders progress/log into the page. Kept
- * deliberately framework-free (plain DOM) since this is a small, standalone
- * static page.
+ * Fetches firmware .hex files from this same deployment's firmware/
+ * directory (built and copied into place by the deploy-flasher.yml CI
+ * workflow), drives the avr109.js WebSerial client, and renders
+ * progress/log into the page. Kept deliberately framework-free (plain DOM)
+ * since this is a small, standalone static page.
  */
 
 import { parseIntelHex, touchReset1200, flashFirmware, probeBootloader } from './avr109.js';
-
-const GITHUB_REPO = 'timville85/4dapter';
 
 // Narrows the browser's device picker to Arduino-vendor USB devices, so
 // unrelated ports (Bluetooth, other USB-serial gadgets, monitor controls,
@@ -21,8 +20,9 @@ const GITHUB_REPO = 'timville85/4dapter';
 // that might differ on a future hardware revision.
 const ARDUINO_VENDOR_FILTER = [{ usbVendorId: 0x2341 }];
 
-// Keep in sync with the filenames ci/build-all.sh produces and
-// .github/workflows/build-firmware.yml publishes as release assets.
+// Keep in sync with the filenames ci/build-all.sh produces — deploy-flasher.yml
+// copies dist/*.hex into docs/firmware/ before every deploy, so these are
+// fetched from this same site rather than an external release.
 const VARIANTS = [
   {
     id: '4dapter-hid',
@@ -81,7 +81,6 @@ const state = {
   variant: VARIANTS[0],
   hexBytes: null,
   usingLocalFile: false,
-  releaseTag: null,
   bootloaderPort: null,
 };
 
@@ -149,42 +148,24 @@ async function ensureFirmwareFetched() {
   const requestedVariant = state.variant;
   const stillWanted = () => state.variant === requestedVariant && !state.usingLocalFile;
 
-  setStatus('Looking up the latest release...', 'busy');
-  const res = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/releases/latest`);
-  if (!res.ok) {
-    throw new Error(
-      `Couldn't find a published release (GitHub API returned ${res.status}). ` +
-        `Use "Load a .hex file instead" below if you have one locally.`
-    );
-  }
-  const release = await res.json();
-  if (!stillWanted()) return;
-
-  const asset = (release.assets || []).find((a) => a.name === requestedVariant.file);
-  if (!asset) {
-    throw new Error(
-      `Release ${release.tag_name} doesn't include ${requestedVariant.file}. ` +
-        `Use "Load a .hex file instead" below if you have one locally.`
-    );
-  }
-
-  setStatus(`Downloading ${requestedVariant.file} from release ${release.tag_name}...`, 'busy');
-  const hexRes = await fetch(asset.browser_download_url);
+  setStatus(`Downloading ${requestedVariant.file}...`, 'busy');
+  const hexRes = await fetch(`firmware/${requestedVariant.file}`);
   if (!hexRes.ok) {
-    throw new Error(`Failed to download ${requestedVariant.file} (HTTP ${hexRes.status})`);
+    throw new Error(
+      `Couldn't load ${requestedVariant.file} (HTTP ${hexRes.status}). ` +
+        `Use "Load a .hex file instead" below if you have one locally.`
+    );
   }
   const hexText = await hexRes.text();
   if (!stillWanted()) return;
-  state.releaseTag = release.tag_name;
   state.hexBytes = parseIntelHex(hexText);
-  setStatus(`Ready: ${requestedVariant.file} from release ${release.tag_name} (${state.hexBytes.length} bytes).`, 'ok');
+  setStatus(`Ready: ${requestedVariant.file} (${state.hexBytes.length} bytes).`, 'ok');
 }
 
 async function loadLocalHexFile(file) {
   const hexText = await file.text();
   state.hexBytes = parseIntelHex(hexText);
   state.usingLocalFile = true;
-  state.releaseTag = `local file: ${file.name}`;
   setStatus(`Ready: ${file.name} (${state.hexBytes.length} bytes).`, 'ok');
 }
 

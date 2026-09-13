@@ -7,6 +7,11 @@ on:
     paths:
       - "docs/**"
       - "wrangler.jsonc"
+      - "lib/**"
+      - "4dapter_FW-HID/**"
+      - "4dapter_FW-Switch/**"
+      - "4dapter_FW-XInput/**"
+      - "ci/build-all.sh"
       - ".github/workflows/deploy-flasher.yml"
 
 jobs:
@@ -14,6 +19,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - uses: arduino/setup-arduino-cli@v2
+
+      - name: Build firmware
+        run: ./ci/build-all.sh
+
+      - name: Copy firmware into site
+        run: |
+          mkdir -p docs/firmware
+          cp dist/*.hex docs/firmware/
+
       - uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
